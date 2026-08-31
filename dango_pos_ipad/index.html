@@ -609,7 +609,8 @@ function askReset(){
 
 function currentOrderText(){
   const qty=order.shoyu+order.mitarashi;
-  return `しょうゆ ${order.shoyu}本 / みたらし ${order.mitarashi}本\n合計 ${qty}本　¥${money(qty*PRICE)}`;
+  const price=orderUnitPrice();
+  return `しょうゆ ${order.shoyu}本 / みたらし ${order.mitarashi}本\n単価 ${money(price)}円 / 合計 ${qty}本　¥${money(qty*price)}`;
 }
 
 function openModal({title,message,orderText='',action}){
