@@ -99,6 +99,17 @@
     }
     .recent-item:first-child{border-top:0}
     .recent-item:active{background:#f2f6fb}
+    .recent-item.needs-attention{
+      background:#fff4c7;
+      border-left:5px solid #e0a100;
+      padding-left:7px;
+    }
+    .recent-item.needs-attention:active{background:#ffeaa0}
+    .recent-note-badge{
+      display:inline-flex;align-items:center;gap:4px;
+      margin-left:6px;padding:2px 7px;border-radius:999px;
+      background:#ffe28a;color:#705400;font-size:11px;font-weight:900
+    }
     .recent-top{display:flex;justify-content:space-between;color:#718094;font-size:14px;margin-bottom:5px}
     .recent-main{font-size:16px;font-weight:800;line-height:1.4}
     .recent-total{font-size:18px;font-weight:900;margin-top:3px}
@@ -183,6 +194,48 @@
       color:#b3261e;font-size:18px;font-weight:900;cursor:pointer
     }
     .settings-note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.5}
+    .all-data-shell{padding:14px}
+    .all-data-toolbar{
+      display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+      padding:14px 16px;margin-bottom:14px
+    }
+    .key-search{display:flex;align-items:end;gap:8px;flex-wrap:wrap}
+    .key-search label{display:block;font-size:13px;font-weight:900;margin-bottom:5px}
+    .key-search input{
+      width:150px;border:1px solid #bac6d2;border-radius:10px;padding:10px 12px;
+      font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;outline:none
+    }
+    .key-search input:focus{border-color:#6c93c0;box-shadow:0 0 0 3px rgba(7,94,232,.10)}
+    .search-status{font-size:13px;color:var(--muted);font-weight:700}
+    .all-data-card{
+      background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+      overflow:hidden
+    }
+    .all-data-wrap{overflow:auto;max-height:calc(100dvh - 205px);min-height:320px}
+    .all-data-table{width:100%;border-collapse:collapse;min-width:1180px}
+    .all-data-table th{
+      position:sticky;top:0;z-index:2;background:var(--navy);color:#fff;padding:10px 8px;
+      font-size:12px;text-align:center;white-space:nowrap
+    }
+    .all-data-table td{
+      padding:9px 8px;border-top:1px solid var(--line);font-size:12px;text-align:center;
+      vertical-align:top
+    }
+    .all-data-table tr.cancelled{opacity:.55;background:#f4f4f4}
+    .all-data-table tr.attention{background:#fff4c7}
+    .all-data-table tr.resolved-note{background:#f7fafc}
+    .all-data-table td.note-cell{
+      text-align:left;min-width:220px;max-width:340px;white-space:pre-wrap;word-break:break-word
+    }
+    .status-pill{
+      display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:900;white-space:nowrap
+    }
+    .status-active{background:#e5f5ea;color:#176b37}
+    .status-cancelled{background:#f8dfdc;color:#9b2d25}
+    .status-attention{background:#ffe28a;color:#705400}
+    .status-resolved{background:#e9eef4;color:#506174}
+
     .dashboard-shell{padding:14px}
     .dash-kpis{
       display:grid;grid-template-columns:1.1fr repeat(6,1fr);gap:10px;margin-bottom:14px
@@ -213,6 +266,7 @@
     .chart-gridline{stroke:#e4e9ef;stroke-width:1}
     .chart-label{fill:#526274;font-size:11px}
     .chart-value{fill:#17202a;font-size:10px;font-weight:700}
+    .chart-inner-value{fill:#fff;font-size:10px;font-weight:900}
     .bar-shoyu{fill:#8a4d1f}
     .bar-mitarashi{fill:#ec9200}
     .line-tx{fill:none;stroke:#0b63d8;stroke-width:3}
@@ -238,7 +292,7 @@
     .donut-label{
       position:absolute;z-index:3;font-size:12px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)
     }
-    .donut-label.shoyu{left:12px;top:92px}.donut-label.mitarashi{right:7px;top:92px}
+    .donut-label.shoyu{right:7px;top:92px}.donut-label.mitarashi{left:12px;top:92px}
     .summary-table-wrap{overflow:auto}
     .summary-table{width:100%;border-collapse:collapse;min-width:430px}
     .summary-table th{font-size:12px;padding:8px 5px}
@@ -301,7 +355,22 @@
     .modal h3{margin:0 0 12px;font-size:23px}
     .modal p{margin:7px 0;color:#445466;line-height:1.55}
     .modal-order{background:#f4f7fa;border-radius:12px;padding:12px;margin:14px 0;font-weight:800;line-height:1.6}
-    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+    .modal-note-area{margin-top:14px}
+    .modal-note-area label{display:block;font-size:14px;font-weight:900;margin-bottom:6px}
+    .modal-note-area textarea{
+      width:100%;min-height:88px;resize:vertical;border:1px solid #bcc7d2;border-radius:12px;
+      padding:11px 12px;font-size:16px;line-height:1.5;outline:none;background:#fff;color:var(--text)
+    }
+    .modal-note-area textarea:focus{border-color:#6c93c0;box-shadow:0 0 0 3px rgba(7,94,232,.10)}
+    .resolved-row{
+      display:flex;align-items:center;gap:10px;margin-top:12px;
+      padding:10px 12px;border-radius:12px;background:#f5f8fb
+    }
+    .resolved-row input{width:21px;height:21px}
+    .resolved-row label{font-weight:900;cursor:pointer}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;flex-wrap:wrap}
+    .modal-save{background:var(--navy);color:#fff}
+
     .modal-btn{border:0;border-radius:12px;padding:12px 16px;font-weight:900;cursor:pointer}
     .modal-cancel{background:#edf1f5;color:#344454}
     .modal-danger{background:var(--red);color:#fff}
@@ -337,12 +406,13 @@
 </head>
 <body>
 <div class="app">
-  <header><h1>だんご🍡</h1><div class="version">Ver. 5.0</div></header>
+  <header><h1>だんご🍡</h1><div class="version">Ver. 5.2</div></header>
 
   <nav class="tabs" aria-label="画面切替">
     <button class="tab active" data-tab="sales" onclick="switchTab('sales')">✎ 販売入力</button>
     <button class="tab" data-tab="history" onclick="switchTab('history')">▥ 時間帯履歴</button>
     <button class="tab" data-tab="dashboard" onclick="switchTab('dashboard')">▥ ダッシュボード</button>
+    <button class="tab" data-tab="all-data" onclick="switchTab('all-data')">☷ 全データ表示</button>
     <button class="tab" data-tab="settings" onclick="switchTab('settings')">⚙ 設定</button>
   </nav>
 
@@ -509,6 +579,47 @@
     </div>
   </section>
 
+  <section id="tab-all-data" class="tab-panel">
+    <div class="all-data-shell">
+      <div class="all-data-toolbar">
+        <div>
+          <strong>全取引データ</strong>
+          <div class="search-status" id="allDataCount">0件</div>
+        </div>
+        <div class="key-search">
+          <div>
+            <label for="keySearchInput">4桁キー検索</label>
+            <input id="keySearchInput" maxlength="4" autocomplete="off" placeholder="例: H58N" oninput="filterAllData()" />
+          </div>
+          <button class="smallbtn" onclick="clearAllDataSearch()">クリア</button>
+        </div>
+      </div>
+      <div class="all-data-card">
+        <div class="all-data-wrap">
+          <table class="all-data-table">
+            <thead>
+              <tr>
+                <th>日時</th>
+                <th>4桁キー</th>
+                <th>しょうゆ</th>
+                <th>みたらし</th>
+                <th>合計本数</th>
+                <th>単価</th>
+                <th>売上</th>
+                <th>取引状態</th>
+                <th>メモ状態</th>
+                <th>メモ</th>
+                <th>メモ更新</th>
+                <th>対応完了</th>
+              </tr>
+            </thead>
+            <tbody id="allDataBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="tab-settings" class="tab-panel">
     <div class="settings-shell">
       <div class="settings-grid">
@@ -554,8 +665,19 @@
     <h3 id="modalTitle"></h3>
     <p id="modalMessage"></p>
     <div id="modalOrder" class="modal-order" style="display:none"></div>
+
+    <div id="modalNoteArea" class="modal-note-area" style="display:none">
+      <label for="modalNoteInput">メモ</label>
+      <textarea id="modalNoteInput" maxlength="500" placeholder="例：支払済み。あとで取りに来る"></textarea>
+      <div class="resolved-row">
+        <input id="modalResolvedCheck" type="checkbox" />
+        <label for="modalResolvedCheck">対応完了</label>
+      </div>
+    </div>
+
     <div class="modal-actions">
-      <button class="modal-btn modal-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="modal-btn modal-cancel" onclick="closeModal()">閉じる</button>
+      <button id="modalSaveBtn" class="modal-btn modal-save" style="display:none">メモ保存</button>
       <button id="modalConfirmBtn" class="modal-btn modal-danger">実行</button>
     </div>
   </div>
@@ -571,6 +693,7 @@ let order = { shoyu:0, mitarashi:0 };
 let confirmed = false;
 let db;
 let modalAction = null;
+let modalSaveAction = null;
 let registering = false;
 
 function money(n){ return Number(n).toLocaleString('ja-JP'); }
@@ -658,6 +781,7 @@ function switchTab(name){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id===`tab-${name}`));
   if(name==='dashboard') renderDashboard();
+  if(name==='all-data') renderAllData();
 }
 
 function changeQty(sku,delta){
@@ -720,7 +844,11 @@ async function registerSale(){
       unitPrice:unitPrice,
       totalPrice:qty*unitPrice,
       status:'active',
-      cancelledAt:''
+      cancelledAt:'',
+      note:'',
+      noteUpdatedAt:'',
+      noteResolved:false,
+      noteResolvedAt:''
     };
     await storeTx(tx);
     resetOrder();
@@ -758,10 +886,13 @@ function currentOrderText(){
   return `しょうゆ ${order.shoyu}本 / みたらし ${order.mitarashi}本\n単価 ${money(price)}円 / 合計 ${qty}本　¥${money(qty*price)}`;
 }
 
-function openModal({title,message,orderText='',action}){
+function openModal({title,message,orderText='',action,confirmLabel='実行',showConfirm=true,noteMode=false,note='',resolved=false,saveAction=null}){
   modalAction=action;
+  modalSaveAction=saveAction;
+
   document.getElementById('modalTitle').textContent=title;
   document.getElementById('modalMessage').textContent=message;
+
   const box=document.getElementById('modalOrder');
   if(orderText){
     box.textContent=orderText;
@@ -770,19 +901,45 @@ function openModal({title,message,orderText='',action}){
   }else{
     box.style.display='none';
   }
+
+  const noteArea=document.getElementById('modalNoteArea');
+  const noteInput=document.getElementById('modalNoteInput');
+  const resolvedCheck=document.getElementById('modalResolvedCheck');
+  const saveBtn=document.getElementById('modalSaveBtn');
+  if(noteMode){
+    noteArea.style.display='block';
+    noteInput.value=note || '';
+    resolvedCheck.checked=Boolean(resolved);
+    saveBtn.style.display='inline-block';
+    saveBtn.onclick=async()=>{
+      const fn=modalSaveAction;
+      if(fn) await fn(noteInput.value, resolvedCheck.checked);
+    };
+  }else{
+    noteArea.style.display='none';
+    noteInput.value='';
+    resolvedCheck.checked=false;
+    saveBtn.style.display='none';
+    saveBtn.onclick=null;
+  }
+
+  const confirmBtn=document.getElementById('modalConfirmBtn');
+  confirmBtn.textContent=confirmLabel;
+  confirmBtn.style.display=showConfirm ? 'inline-block' : 'none';
+  confirmBtn.onclick=async()=>{
+    const fn=modalAction;
+    if(fn) await fn();
+  };
+
   const bd=document.getElementById('modalBackdrop');
   bd.classList.add('show');
   bd.setAttribute('aria-hidden','false');
-  document.getElementById('modalConfirmBtn').onclick=async()=>{
-    const fn=modalAction;
-    closeModal();
-    if(fn) await fn();
-  };
 }
 function closeModal(){
   document.getElementById('modalBackdrop').classList.remove('show');
   document.getElementById('modalBackdrop').setAttribute('aria-hidden','true');
   modalAction=null;
+  modalSaveAction=null;
 }
 document.getElementById('modalBackdrop').addEventListener('click',e=>{
   if(e.target.id==='modalBackdrop') closeModal();
@@ -791,21 +948,57 @@ document.getElementById('modalBackdrop').addEventListener('click',e=>{
 async function requestCancelTransaction(id){
   const txs=await allTxs();
   const tx=txs.find(x=>x.id===id);
-  if(!tx || !activeStatus(tx)) return;
+  if(!tx) return;
+
   const parts=[];
   if(tx.shoyu) parts.push(`しょうゆ ${tx.shoyu}本`);
   if(tx.mitarashi) parts.push(`みたらし ${tx.mitarashi}本`);
+
   openModal({
-    title:'この取引を取り消しますか？',
-    message:'本日累計・時間帯集計から除外します。取引履歴とCSVには「取消済」として残ります。',
-    orderText:`${tx.timestamp.slice(11,16)}\n${parts.join(' / ')}\n${tx.totalQty}本　¥${money(tx.totalPrice)}`,
-    action:async()=>{
-      tx.status='cancelled';
-      tx.cancelledAt=isoLocal(new Date());
+    title:'取引詳細',
+    message: activeStatus(tx)
+      ? 'メモの追加・更新、対応完了の切替、または取引取消ができます。'
+      : 'この取引は取消済みです。メモの追加・更新、対応完了の切替はできます。',
+    orderText:`${tx.timestamp.slice(0,10)} ${tx.timestamp.slice(11,16)}\nキー ${tx.id.slice(-4)}\n${parts.join(' / ')}\n${tx.totalQty}本　¥${money(tx.totalPrice)}`,
+    noteMode:true,
+    note:tx.note || '',
+    resolved:Boolean(tx.noteResolved),
+    saveAction:async(note,resolved)=>{
+      const now=isoLocal(new Date());
+      const prevResolved=Boolean(tx.noteResolved);
+      tx.note=String(note || '').trim();
+      tx.noteUpdatedAt=now;
+      tx.noteResolved=Boolean(resolved);
+
+      if(tx.noteResolved && !prevResolved){
+        tx.noteResolvedAt=now;
+      }else if(!tx.noteResolved){
+        tx.noteResolvedAt='';
+      }
+
       await storeTx(tx);
+      closeModal();
       await refresh();
-      toast('取引を取り消しました');
-    }
+      if(document.getElementById('tab-all-data').classList.contains('active')) await renderAllData();
+      toast('メモを保存しました');
+    },
+    showConfirm:activeStatus(tx),
+    confirmLabel:'取引取消',
+    action:activeStatus(tx) ? async()=>{
+      openModal({
+        title:'この取引を取り消しますか？',
+        message:'本日累計・時間帯集計から除外します。取引履歴とCSVには「取消済」として残ります。',
+        orderText:`${tx.timestamp.slice(11,16)}\n${parts.join(' / ')}\n${tx.totalQty}本　¥${money(tx.totalPrice)}`,
+        action:async()=>{
+          tx.status='cancelled';
+          tx.cancelledAt=isoLocal(new Date());
+          await storeTx(tx);
+          closeModal();
+          await refresh();
+          toast('取引を取り消しました');
+        }
+      });
+    } : null
   });
 }
 
@@ -864,8 +1057,28 @@ function renderStackedBarChart(container,rows,opts={}){
     const sh=Number(r.shoyu||0),mi=Number(r.mitarashi||0);
     const shH=(sh/maxVal)*ch, miH=(mi/maxVal)*ch;
     const yBase=mt+ch;
-    if(sh>0) svg.appendChild(svgEl('rect',{x,y:yBase-shH,width:bw,height:shH,class:'bar-shoyu',rx:2}));
-    if(mi>0) svg.appendChild(svgEl('rect',{x,y:yBase-shH-miH,width:bw,height:miH,class:'bar-mitarashi',rx:2}));
+    if(sh>0){
+      svg.appendChild(svgEl('rect',{x,y:yBase-shH,width:bw,height:shH,class:'bar-shoyu',rx:2}));
+      if(shH>=18){
+        svg.appendChild(svgEl('text',{
+          x:x+bw/2,
+          y:yBase-shH/2+3,
+          'text-anchor':'middle',
+          class:'chart-inner-value'
+        },String(sh)));
+      }
+    }
+    if(mi>0){
+      svg.appendChild(svgEl('rect',{x,y:yBase-shH-miH,width:bw,height:miH,class:'bar-mitarashi',rx:2}));
+      if(miH>=18){
+        svg.appendChild(svgEl('text',{
+          x:x+bw/2,
+          y:yBase-shH-miH/2+3,
+          'text-anchor':'middle',
+          class:'chart-inner-value'
+        },String(mi)));
+      }
+    }
     const total=sh+mi;
     svg.appendChild(svgEl('text',{x:x+bw/2,y:yBase-shH-miH-5,'text-anchor':'middle',class:'chart-value'},String(total)));
     svg.appendChild(svgEl('text',{x:x+bw/2,y:H-16,'text-anchor':'middle',class:'chart-label'},r.label));
@@ -1063,12 +1276,36 @@ async function refresh(){
       if(x.shoyu) parts.push(`しょうゆ${x.shoyu}`);
       if(x.mitarashi) parts.push(`みたらし${x.mitarashi}`);
       const b=document.createElement('button');
-      b.className='recent-item';
+      const hasOpenNote=Boolean((x.note||'').trim()) && !Boolean(x.noteResolved);
+      b.className='recent-item'+(hasOpenNote?' needs-attention':'');
       b.onclick=()=>requestCancelTransaction(x.id);
-      b.innerHTML=`
-        <div class="recent-top"><span>${x.timestamp.slice(11,16)}</span><span>${x.id.slice(-4)}</span></div>
-        <div class="recent-main">${parts.join(' / ')}</div>
-        <div class="recent-total">${x.totalQty}本　¥${money(x.totalPrice)}</div>`;
+
+      const top=document.createElement('div');
+      top.className='recent-top';
+      const timeSpan=document.createElement('span');
+      timeSpan.textContent=x.timestamp.slice(11,16);
+      const keySpan=document.createElement('span');
+      keySpan.textContent=x.id.slice(-4);
+      top.appendChild(timeSpan);
+      top.appendChild(keySpan);
+
+      const main=document.createElement('div');
+      main.className='recent-main';
+      main.textContent=parts.join(' / ');
+      if(hasOpenNote){
+        const badge=document.createElement('span');
+        badge.className='recent-note-badge';
+        badge.textContent='📝 要対応';
+        main.appendChild(badge);
+      }
+
+      const total=document.createElement('div');
+      total.className='recent-total';
+      total.textContent=`${x.totalQty}本　¥${money(x.totalPrice)}`;
+
+      b.appendChild(top);
+      b.appendChild(main);
+      b.appendChild(total);
       recentList.appendChild(b);
     });
   }
@@ -1112,16 +1349,24 @@ async function refresh(){
       const cancelled=!activeStatus(x);
       const div=document.createElement('div');
       div.className='tx-row'+(cancelled?' cancelled':'');
+      const noteLabel=(x.note||'').trim()
+        ? (x.noteResolved ? ' ・ メモ対応完了' : ' ・ 📝要対応')
+        : '';
       div.innerHTML=`
         <div class="tx-top"><span>${x.timestamp.slice(11,16)}</span><span>${cancelled?'<span class="cancel-badge">取消済</span>':x.id.slice(-4)}</span></div>
-        <div class="tx-main">${parts.join(' / ')}</div>
+        <div class="tx-main">${parts.join(' / ')}${noteLabel}</div>
         <div class="tx-total">${x.totalQty}本　¥${money(x.totalPrice)}</div>`;
+      div.style.cursor='pointer';
+      div.onclick=()=>requestCancelTransaction(x.id);
       txList.appendChild(div);
     });
   }
 
   if(document.getElementById('tab-dashboard').classList.contains('active')){
     renderDashboard();
+  }
+  if(document.getElementById('tab-all-data').classList.contains('active')){
+    renderAllData();
   }
 }
 
@@ -1167,15 +1412,161 @@ async function askDeleteAll(){
   });
 }
 
+
+function noteState(tx){
+  const hasNote=Boolean((tx.note||'').trim());
+  if(!hasNote) return 'なし';
+  return tx.noteResolved ? '対応完了' : '要対応';
+}
+async function renderAllData(){
+  if(!db) return;
+  const txs=[...(await allTxs())].reverse();
+  const input=document.getElementById('keySearchInput');
+  const query=(input ? input.value : '').trim().toUpperCase();
+  const filtered=query
+    ? txs.filter(x=>String(x.id||'').slice(-4).toUpperCase().includes(query))
+    : txs;
+
+  const body=document.getElementById('allDataBody');
+  const count=document.getElementById('allDataCount');
+  if(!body || !count) return;
+
+  count.textContent=query ? `${filtered.length}件 / 全${txs.length}件` : `${txs.length}件`;
+  body.innerHTML='';
+
+  if(!filtered.length){
+    body.innerHTML='<tr><td colspan="12" style="padding:28px;color:#6b7785">該当する取引がありません</td></tr>';
+    return;
+  }
+
+  filtered.forEach(tx=>{
+    const tr=document.createElement('tr');
+    const hasNote=Boolean((tx.note||'').trim());
+    const isResolved=Boolean(tx.noteResolved);
+    if(!activeStatus(tx)) tr.classList.add('cancelled');
+    else if(hasNote && !isResolved) tr.classList.add('attention');
+    else if(hasNote && isResolved) tr.classList.add('resolved-note');
+
+    const status=activeStatus(tx)
+      ? '<span class="status-pill status-active">登録済</span>'
+      : '<span class="status-pill status-cancelled">取消済</span>';
+
+    let memoStatus='<span class="status-pill status-resolved">なし</span>';
+    if(hasNote && !isResolved) memoStatus='<span class="status-pill status-attention">要対応</span>';
+    if(hasNote && isResolved) memoStatus='<span class="status-pill status-resolved">対応完了</span>';
+
+    const cells=[
+      tx.timestamp.replace('T',' '),
+      String(tx.id||'').slice(-4),
+      `${Number(tx.shoyu||0)}本`,
+      `${Number(tx.mitarashi||0)}本`,
+      `${Number(tx.totalQty||0)}本`,
+      `${money(txUnitPrice(tx))}円`,
+      `¥${money(tx.totalPrice||0)}`
+    ];
+    cells.forEach(v=>{
+      const td=document.createElement('td');
+      td.textContent=v;
+      tr.appendChild(td);
+    });
+
+    const statusTd=document.createElement('td');
+    statusTd.innerHTML=status;
+    tr.appendChild(statusTd);
+
+    const memoStatusTd=document.createElement('td');
+    memoStatusTd.innerHTML=memoStatus;
+    tr.appendChild(memoStatusTd);
+
+    const noteTd=document.createElement('td');
+    noteTd.className='note-cell';
+    noteTd.textContent=tx.note || '';
+    tr.appendChild(noteTd);
+
+    const updatedTd=document.createElement('td');
+    updatedTd.textContent=tx.noteUpdatedAt ? tx.noteUpdatedAt.replace('T',' ') : '';
+    tr.appendChild(updatedTd);
+
+    const resolvedTd=document.createElement('td');
+    resolvedTd.textContent=tx.noteResolvedAt ? tx.noteResolvedAt.replace('T',' ') : '';
+    tr.appendChild(resolvedTd);
+
+    tr.style.cursor='pointer';
+    tr.title='タップして取引詳細を開く';
+    tr.onclick=()=>requestCancelTransaction(tx.id);
+
+    body.appendChild(tr);
+  });
+}
+function filterAllData(){
+  const input=document.getElementById('keySearchInput');
+  if(!input) return;
+  input.value=input.value.replace(/[^0-9A-Za-z]/g,'').toUpperCase().slice(0,4);
+  renderAllData();
+}
+function clearAllDataSearch(){
+  const input=document.getElementById('keySearchInput');
+  if(input) input.value='';
+  renderAllData();
+}
+
+function csvEscape(value){
+  const s=String(value ?? '');
+  if(/[",\r\n]/.test(s)){
+    return '"' + s.replace(/"/g,'""') + '"';
+  }
+  return s;
+}
+function parseCSV(text){
+  const rows=[];
+  let row=[],field='',inQuotes=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(inQuotes){
+      if(ch==='"'){
+        if(text[i+1]==='"'){
+          field+='"';
+          i++;
+        }else{
+          inQuotes=false;
+        }
+      }else{
+        field+=ch;
+      }
+    }else{
+      if(ch==='"'){
+        inQuotes=true;
+      }else if(ch===','){
+        row.push(field);field='';
+      }else if(ch==='\n'){
+        row.push(field);rows.push(row);row=[];field='';
+      }else if(ch==='\r'){
+        // Ignore CR; LF will close the row.
+      }else{
+        field+=ch;
+      }
+    }
+  }
+  if(field!=='' || row.length){
+    row.push(field);rows.push(row);
+  }
+  return rows;
+}
+
 async function exportCSV(silent=false){
   const txs=await allTxs();
-  const headers=['record_type','timestamp','transaction_id','shoyu_qty','mitarashi_qty','total_qty','unit_price','total_price','status','cancelled_at'];
-  const lines=[headers.join(',')];
+  const headers=[
+    'record_type','timestamp','transaction_id','shoyu_qty','mitarashi_qty','total_qty',
+    'unit_price','total_price','status','cancelled_at',
+    'note','note_updated_at','note_resolved','note_resolved_at'
+  ];
+  const lines=[headers.map(csvEscape).join(',')];
   txs.forEach(x=>{
     lines.push([
       'SALE',x.timestamp,x.id,x.shoyu,x.mitarashi,x.totalQty,txUnitPrice(x),x.totalPrice,
-      activeStatus(x)?'active':'cancelled',x.cancelledAt||''
-    ].join(','));
+      activeStatus(x)?'active':'cancelled',x.cancelledAt||'',
+      x.note||'',x.noteUpdatedAt||'',x.noteResolved?'true':'false',x.noteResolvedAt||''
+    ].map(csvEscape).join(','));
   });
   const csv='\uFEFF'+lines.join('\r\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
@@ -1193,37 +1584,62 @@ async function importCSV(event){
   const file=event.target.files && event.target.files[0];
   event.target.value='';
   if(!file) return;
+
   openModal({
     title:'CSVから復元しますか？',
     message:'現在の販売履歴をCSVの内容で置き換えます。先に現在データのCSVを出力することを推奨します。',
     orderText:file.name,
     action:async()=>{
       try{
-        const text=(await file.text()).replace(/^\uFEFF/,'').trim();
-        const lines=text ? text.split(/\r?\n/).filter(Boolean) : [];
-        if(!lines.length) throw new Error('CSVが空です');
-        const header=parseCSVLine(lines[0]);
+        const text=(await file.text()).replace(/^\uFEFF/,'');
+        const rowsRaw=parseCSV(text).filter(r=>r.some(v=>String(v).trim()!==''));
+        if(!rowsRaw.length) throw new Error('CSVが空です');
+
+        const header=rowsRaw[0].map(v=>String(v).trim());
         const oldHeader=['record_type','timestamp','transaction_id','shoyu_qty','mitarashi_qty','total_qty','unit_price','total_price'];
-        const newHeader=[...oldHeader,'status','cancelled_at'];
-        const isNew=newHeader.every((h,i)=>header[i]===h);
+        const statusHeader=[...oldHeader,'status','cancelled_at'];
+        const noteHeader=[...statusHeader,'note','note_updated_at','note_resolved','note_resolved_at'];
+
+        const isNote=noteHeader.every((h,i)=>header[i]===h);
+        const isStatus=statusHeader.every((h,i)=>header[i]===h);
         const isOld=oldHeader.every((h,i)=>header[i]===h);
-        if(!isNew && !isOld) throw new Error('このアプリのCSV形式ではありません');
-        const rows=[];
-        for(let i=1;i<lines.length;i++){
-          const c=parseCSVLine(lines[i]);
+        if(!isNote && !isStatus && !isOld) throw new Error('このアプリのCSV形式ではありません');
+
+        const imported=[];
+        for(let i=1;i<rowsRaw.length;i++){
+          const c=rowsRaw[i];
           if(c[0]!=='SALE') continue;
-          const ts=c[1], id=c[2], sh=Number(c[3]), mi=Number(c[4]), tq=Number(c[5]), up=Number(c[6]), tp=Number(c[7]);
-          if(!ts || !id || [sh,mi,tq,up,tp].some(Number.isNaN)) throw new Error(`${i+1}行目の形式が不正です`);
-          rows.push({
-            id,timestamp:ts,dateKey:ts.slice(0,10),shoyu:sh,mitarashi:mi,totalQty:tq,unitPrice:up,totalPrice:tp,
-            status:isNew?(c[8]||'active'):'active',
-            cancelledAt:isNew?(c[9]||''):''
+
+          const ts=c[1], id=c[2];
+          const sh=Number(c[3]), mi=Number(c[4]), tq=Number(c[5]), up=Number(c[6]), tp=Number(c[7]);
+          if(!ts || !id || [sh,mi,tq,up,tp].some(Number.isNaN)){
+            throw new Error(`${i+1}行目の形式が不正です`);
+          }
+
+          imported.push({
+            id,
+            timestamp:ts,
+            dateKey:ts.slice(0,10),
+            shoyu:sh,
+            mitarashi:mi,
+            totalQty:tq,
+            unitPrice:up,
+            totalPrice:tp,
+            status:(isStatus||isNote) ? (c[8]||'active') : 'active',
+            cancelledAt:(isStatus||isNote) ? (c[9]||'') : '',
+            note:isNote ? (c[10]||'') : '',
+            noteUpdatedAt:isNote ? (c[11]||'') : '',
+            noteResolved:isNote ? String(c[12]||'').toLowerCase()==='true' : false,
+            noteResolvedAt:isNote ? (c[13]||'') : ''
           });
         }
+
         await clearTxs();
-        for(const r of rows) await storeTx(r);
+        for(const r of imported) await storeTx(r);
+        closeModal();
         await refresh();
-        toast(`${rows.length}件の取引を復元しました`);
+        if(document.getElementById('tab-all-data').classList.contains('active')) await renderAllData();
+        toast(`${imported.length}件の取引を復元しました`);
       }catch(e){
         alert('CSV復元に失敗しました。\n'+e.message);
       }
