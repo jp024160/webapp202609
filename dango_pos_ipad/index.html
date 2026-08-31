@@ -549,11 +549,42 @@
       .memo-table-wrap{height:300px}
     }
 
+
+    .sound-setting-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      background:#f5f8fb;
+      border-radius:14px;
+      padding:14px 16px;
+    }
+    .sound-switch{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      cursor:pointer;
+      min-height:44px;
+    }
+    .sound-switch input{
+      width:24px;
+      height:24px;
+      margin:0;
+    }
+    .sound-state{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
 </style>
 </head>
 <body>
 <div class="app">
-  <header><h1>だんご🍡</h1><div class="version">Ver. 5.3</div></header>
+  <header><h1>だんご🍡</h1><div class="version">Ver. 5.5</div></header>
 
   <nav class="tabs" aria-label="画面切替">
     <button class="tab active" data-tab="sales" onclick="switchTab('sales')">✎ 販売入力</button>
@@ -809,6 +840,21 @@
           <div class="settings-note">確定済みで未登録の注文は、確定時点の単価を保持します。</div>
         </section>
 
+        <section class="settings-card">
+          <h2>効果音</h2>
+          <div class="settings-desc">
+            「受領済・登録」で販売データの保存が成功したときにレジ音を鳴らします。
+          </div>
+          <div class="sound-setting-row">
+            <label class="sound-switch" for="soundEnabledCheck">
+              <input id="soundEnabledCheck" type="checkbox" checked onchange="applySoundSetting()" />
+              <span>効果音を鳴らす</span>
+            </label>
+            <button class="settings-primary" onclick="testCashRegisterSound()">テスト再生</button>
+          </div>
+          <div id="soundStateText" class="sound-state">効果音：ON</div>
+        </section>
+
         <section class="settings-card danger-zone">
           <h2>すべての記録をリセット</h2>
           <div class="settings-desc">
@@ -822,6 +868,10 @@
     </div>
   </section>
 </div>
+
+<audio id="cashRegisterSound" preload="auto" playsinline>
+  <source src="./cash_register.mp3" type="audio/mpeg">
+</audio>
 
 <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="modal">
@@ -858,6 +908,7 @@ let db;
 let modalAction = null;
 let modalSaveAction = null;
 let registering = false;
+let soundEnabled = true;
 
 function money(n){ return Number(n).toLocaleString('ja-JP'); }
 function pad(n){ return String(n).padStart(2,'0'); }
@@ -989,9 +1040,139 @@ function confirmOrder(){
   toast(`注文内容を確定しました（${money(confirmedPrice)}円/本）`);
 }
 
+
+function updateSoundSettingUI(){
+  const check=document.getElementById('soundEnabledCheck');
+  const state=document.getElementById('soundStateText');
+
+  if(check) check.checked=Boolean(soundEnabled);
+  if(state) state.textContent=`効果音：${soundEnabled ? 'ON' : 'OFF'}`;
+}
+
+async function applySoundSetting(){
+  const check=document.getElementById('soundEnabledCheck');
+  soundEnabled=check ? Boolean(check.checked) : true;
+
+  await setSetting('soundEnabled',soundEnabled);
+  updateSoundSettingUI();
+
+  if(soundEnabled){
+    toast('効果音をONにしました');
+  }else{
+    toast('効果音をOFFにしました');
+  }
+}
+
+function prepareCashRegisterSound(){
+  if(!soundEnabled) return;
+
+  const audio=document.getElementById('cashRegisterSound');
+  if(!audio) return;
+
+  /*
+   * Safari / iPad対策:
+   * 「受領済・登録」を押した瞬間（最初のawaitより前）に、
+   * 無音で同じaudio要素の再生を開始してユーザー操作と結び付ける。
+   */
+  try{
+    audio.pause();
+    audio.currentTime=0;
+    audio.muted=true;
+
+    const promise=audio.play();
+    if(promise && typeof promise.then==='function'){
+      promise.then(()=>{
+        /*
+         * 登録処理が完了するまでは無音状態のまま。
+         * 成功時のplayCashRegisterSound()で先頭へ戻して音を出す。
+         */
+      }).catch(err=>{
+        console.warn('効果音の事前準備に失敗しました:',err);
+        audio.muted=false;
+      });
+    }
+  }catch(err){
+    console.warn('効果音の事前準備に失敗しました:',err);
+    audio.muted=false;
+  }
+}
+
+function cancelPreparedCashRegisterSound(){
+  const audio=document.getElementById('cashRegisterSound');
+  if(!audio) return;
+
+  try{
+    audio.pause();
+    audio.currentTime=0;
+    audio.muted=false;
+  }catch(err){
+    console.warn('効果音の停止に失敗しました:',err);
+  }
+}
+
+function playCashRegisterSound(){
+  if(!soundEnabled){
+    cancelPreparedCashRegisterSound();
+    return;
+  }
+
+  const audio=document.getElementById('cashRegisterSound');
+  if(!audio) return;
+
+  try{
+    audio.pause();
+    audio.currentTime=0;
+    audio.muted=false;
+    audio.volume=1;
+
+    const promise=audio.play();
+    if(promise && typeof promise.catch==='function'){
+      promise.catch(err=>{
+        console.warn('効果音を再生できませんでした:',err);
+      });
+    }
+  }catch(err){
+    console.warn('効果音を再生できませんでした:',err);
+  }
+}
+
+function testCashRegisterSound(){
+  if(!soundEnabled){
+    toast('効果音がOFFです');
+    return;
+  }
+
+  const audio=document.getElementById('cashRegisterSound');
+  if(!audio){
+    alert('効果音ファイルを読み込めませんでした。');
+    return;
+  }
+
+  try{
+    audio.pause();
+    audio.currentTime=0;
+    audio.muted=false;
+    audio.volume=1;
+
+    const promise=audio.play();
+    if(promise && typeof promise.catch==='function'){
+      promise.catch(err=>{
+        console.warn('テスト再生に失敗しました:',err);
+        alert('効果音を再生できませんでした。iPad / Safariの音量・消音設定を確認してください。');
+      });
+    }
+  }catch(err){
+    console.warn('テスト再生に失敗しました:',err);
+    alert('効果音を再生できませんでした。iPad / Safariの音量・消音設定を確認してください。');
+  }
+}
+
 async function registerSale(){
   const qty=order.shoyu+order.mitarashi;
   if(!confirmed || qty===0 || registering) return;
+
+  prepareCashRegisterSound();
+
   registering=true;
   renderOrder();
   try{
@@ -1014,10 +1195,12 @@ async function registerSale(){
       noteResolvedAt:''
     };
     await storeTx(tx);
+    playCashRegisterSound();
     resetOrder();
     await refresh();
     toast(`登録しました：${qty}本 / ¥${money(qty*unitPrice)}`);
   }catch(e){
+    cancelPreparedCashRegisterSound();
     alert('販売登録に失敗しました。\n'+e.message);
   }finally{
     registering=false;
@@ -1929,6 +2112,19 @@ window.addEventListener('load',async()=>{
     }
     document.getElementById('currentPriceSetting').textContent=money(currentPrice);
     document.getElementById('priceInput').value=currentPrice;
+
+    const savedSound=await getSetting('soundEnabled');
+    soundEnabled=(typeof savedSound==='boolean') ? savedSound : true;
+    if(typeof savedSound!=='boolean'){
+      await setSetting('soundEnabled',true);
+    }
+    updateSoundSettingUI();
+
+    const cashAudio=document.getElementById('cashRegisterSound');
+    if(cashAudio){
+      cashAudio.load();
+    }
+
     renderOrder();
     await refresh();
     if('serviceWorker' in navigator){
