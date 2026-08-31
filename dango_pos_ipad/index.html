@@ -103,8 +103,8 @@
     .summary-card.total{grid-column:2;grid-row:1}
     .summary-card.payment{grid-column:2;grid-row:2}
     .summary-label{font-size:27px;font-weight:900;margin-bottom:18px}
-    .summary-value{font-size:72px;line-height:1;font-weight:900;font-variant-numeric:tabular-nums;color:var(--text)}
-    .summary-value.money{font-size:68px}
+    .summary-value{font-size:86px;line-height:1;font-weight:900;font-variant-numeric:tabular-nums;color:var(--text)}
+    .summary-value.money{font-size:82px}
     .summary-unit{font-size:28px;margin-left:4px}
 
     .sku-card{display:flex;flex-direction:column}
@@ -138,11 +138,46 @@
     .action:disabled{opacity:.38;cursor:default}
     .reset-btn{background:#fff;color:var(--red);border-color:#ef766a}
     .register-btn{background:#fff;color:#177837;border-color:#6ab47c}
+    .register-btn:disabled{opacity:1;background:#fff;color:#177837;border-color:#6ab47c;cursor:default}
+    .register-btn.ready{background:linear-gradient(180deg,var(--green),var(--green2));color:#fff;border-color:var(--green)}
     .confirm-btn{background:linear-gradient(180deg,var(--blue),var(--blue2));color:#fff;border-color:var(--blue)}
     .action small{display:block;font-size:11px;margin-top:3px;font-weight:700;opacity:.82}
 
     /* History tab */
     .history-shell{padding:14px}
+    .settings-shell{padding:14px}
+    .settings-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+    .settings-card{
+      background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+      padding:22px;min-width:0
+    }
+    .settings-card h2{margin:0 0 8px;font-size:22px}
+    .settings-desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:18px}
+    .price-current{
+      display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+      background:#f5f8fb;border-radius:14px;padding:14px 16px;margin-bottom:16px
+    }
+    .price-current span:first-child{font-weight:800;color:#4e5f71}
+    .price-current strong{font-size:34px;color:var(--navy);font-variant-numeric:tabular-nums}
+    .price-form{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    .field label{display:block;font-size:14px;font-weight:800;margin-bottom:6px}
+    .price-input-wrap{display:flex;align-items:center;border:1px solid #bac6d2;border-radius:12px;background:#fff;overflow:hidden}
+    .price-input-wrap input{
+      width:100%;min-width:0;border:0;outline:0;padding:12px 10px 12px 14px;font-size:22px;font-weight:800;
+      font-variant-numeric:tabular-nums;background:#fff
+    }
+    .price-input-wrap span{padding:0 14px 0 4px;font-weight:800;color:#4e5f71}
+    .settings-primary{
+      min-height:50px;border:0;border-radius:12px;background:var(--navy);color:#fff;
+      padding:10px 18px;font-weight:900;cursor:pointer
+    }
+    .danger-zone{border-color:#efb2ad}
+    .danger-zone h2{color:#a62c23}
+    .delete-all{
+      width:100%;min-height:54px;border-radius:12px;border:2px solid #dc5147;background:#fff;
+      color:#b3261e;font-size:18px;font-weight:900;cursor:pointer
+    }
+    .settings-note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.5}
     .today-summary{
       display:grid;grid-template-columns:auto repeat(4,1fr);align-items:center;background:#fff;
       border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 18px;
@@ -203,7 +238,7 @@
 
     @media (max-width:900px){
       .sales-grid{grid-template-columns:245px 1fr 1fr}
-      .summary-value{font-size:58px}.summary-value.money{font-size:54px}
+      .summary-value{font-size:68px}.summary-value.money{font-size:64px}
       .qty{font-size:54px}.stepper{grid-template-columns:68px 1fr 68px}.stepper button{height:68px}
     }
     @media (max-width:720px){
@@ -214,6 +249,7 @@
       .sku-card{min-height:300px}
       .actions{order:5;grid-template-columns:1fr}
       .history-grid{grid-template-columns:1fr}
+      .settings-grid{grid-template-columns:1fr}
       .today-summary{grid-template-columns:1fr 1fr}
       .today-label{grid-column:1/-1;padding:0 0 10px}
       .stat{border-left:0;border-top:1px solid var(--line)}
@@ -227,6 +263,7 @@
   <nav class="tabs" aria-label="画面切替">
     <button class="tab active" data-tab="sales" onclick="switchTab('sales')">✎ 販売入力</button>
     <button class="tab" data-tab="history" onclick="switchTab('history')">▥ 時間帯履歴</button>
+    <button class="tab" data-tab="settings" onclick="switchTab('settings')">⚙ 設定</button>
   </nav>
 
   <section id="tab-sales" class="tab-panel active">
@@ -255,7 +292,7 @@
         <article class="pane sku-card shoyu">
           <div class="sku-head shoyu">しょうゆ</div>
           <div class="sku-body">
-            <div class="unit">1本 120円</div>
+            <div class="unit">1本 <span class="current-unit-price">120</span>円</div>
             <div class="stepper">
               <button id="shoyuMinus" aria-label="しょうゆを1本減らす" onclick="changeQty('shoyu',-1)">−</button>
               <div id="qShoyu" class="qty order-number">0</div>
@@ -268,7 +305,7 @@
         <article class="pane sku-card mitarashi">
           <div class="sku-head mitarashi">みたらし</div>
           <div class="sku-body">
-            <div class="unit">1本 120円</div>
+            <div class="unit">1本 <span class="current-unit-price">120</span>円</div>
             <div class="stepper">
               <button id="mitarashiMinus" aria-label="みたらしを1本減らす" onclick="changeQty('mitarashi',-1)">−</button>
               <div id="qMitarashi" class="qty order-number">0</div>
@@ -328,6 +365,44 @@
       </div>
     </div>
   </section>
+  <section id="tab-settings" class="tab-panel">
+    <div class="settings-shell">
+      <div class="settings-grid">
+        <section class="settings-card">
+          <h2>単価設定</h2>
+          <div class="settings-desc">
+            しょうゆ・みたらし共通の1本あたり単価です。変更後に登録する取引から新しい単価を使用します。
+            過去に登録済みの取引金額は変更されません。
+          </div>
+          <div class="price-current">
+            <span>現在の単価</span>
+            <strong><span id="currentPriceSetting">120</span>円 / 本</strong>
+          </div>
+          <div class="price-form">
+            <div class="field">
+              <label for="priceInput">新しい単価</label>
+              <div class="price-input-wrap">
+                <input id="priceInput" type="number" inputmode="numeric" min="1" max="100000" step="1" value="120" />
+                <span>円</span>
+              </div>
+            </div>
+            <button class="settings-primary" onclick="applyPrice()">確定・反映</button>
+          </div>
+          <div class="settings-note">確定済みで未登録の注文は、確定時点の単価を保持します。</div>
+        </section>
+
+        <section class="settings-card danger-zone">
+          <h2>すべての記録をリセット</h2>
+          <div class="settings-desc">
+            1日分の販売終了後などに使用します。実行すると、登録済み取引と取消済み取引をすべて削除します。
+            削除直前に、その時点の全取引をCSVスナップショットとして自動出力します。
+          </div>
+          <button class="delete-all" onclick="askDeleteAll()">すべての記録をリセット</button>
+          <div class="settings-note">単価設定は削除せず保持します。CSVの保存先はSafari / iPadのダウンロード設定に従います。</div>
+        </section>
+      </div>
+    </div>
+  </section>
 </div>
 
 <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
@@ -345,7 +420,9 @@
 <div id="toast" class="toast"></div>
 
 <script>
-const PRICE = 120;
+const DEFAULT_PRICE = 120;
+let currentPrice = DEFAULT_PRICE;
+let confirmedPrice = null;
 let order = { shoyu:0, mitarashi:0 };
 let confirmed = false;
 let db;
@@ -365,7 +442,7 @@ function activeStatus(x){ return !x.status || x.status === 'active'; }
 
 function openDB(){
   return new Promise((resolve,reject)=>{
-    const req=indexedDB.open('DangoPOS',1);
+    const req=indexedDB.open('DangoPOS',2);
     req.onupgradeneeded=e=>{
       const database=e.target.result;
       if(!database.objectStoreNames.contains('transactions')){
@@ -373,10 +450,40 @@ function openDB(){
         store.createIndex('timestamp','timestamp');
         store.createIndex('dateKey','dateKey');
       }
+      if(!database.objectStoreNames.contains('settings')){
+        database.createObjectStore('settings',{keyPath:'key'});
+      }
     };
     req.onsuccess=e=>{db=e.target.result; resolve(db);}
     req.onerror=()=>reject(req.error);
   });
+}
+function getSetting(key){
+  return new Promise((resolve,reject)=>{
+    const t=db.transaction('settings','readonly');
+    const r=t.objectStore('settings').get(key);
+    r.onsuccess=()=>resolve(r.result ? r.result.value : undefined);
+    r.onerror=()=>reject(r.error);
+  });
+}
+function setSetting(key,value){
+  return new Promise((resolve,reject)=>{
+    const t=db.transaction('settings','readwrite');
+    t.objectStore('settings').put({key,value});
+    t.oncomplete=resolve;
+    t.onerror=()=>reject(t.error);
+  });
+}
+function txUnitPrice(tx){
+  const p=Number(tx.unitPrice);
+  if(Number.isFinite(p) && p>0) return p;
+  const q=Number(tx.totalQty);
+  const total=Number(tx.totalPrice);
+  if(Number.isFinite(q) && q>0 && Number.isFinite(total)) return total/q;
+  return DEFAULT_PRICE;
+}
+function orderUnitPrice(){
+  return confirmed && confirmedPrice != null ? confirmedPrice : currentPrice;
 }
 function storeTx(tx){
   return new Promise((resolve,reject)=>{
@@ -416,16 +523,19 @@ function changeQty(sku,delta){
 function resetOrder(){
   order={shoyu:0,mitarashi:0};
   confirmed=false;
+  confirmedPrice=null;
   renderOrder();
 }
 function renderOrder(){
   const qty=order.shoyu+order.mitarashi;
+  const price=orderUnitPrice();
   document.getElementById('qShoyu').textContent=order.shoyu;
   document.getElementById('qMitarashi').textContent=order.mitarashi;
-  document.getElementById('shoyuCalc').textContent=`120円 × ${order.shoyu} = ${money(order.shoyu*PRICE)}円`;
-  document.getElementById('mitarashiCalc').textContent=`120円 × ${order.mitarashi} = ${money(order.mitarashi*PRICE)}円`;
+  document.querySelectorAll('.current-unit-price').forEach(el=>el.textContent=money(price));
+  document.getElementById('shoyuCalc').textContent=`${money(price)}円 × ${order.shoyu} = ${money(order.shoyu*price)}円`;
+  document.getElementById('mitarashiCalc').textContent=`${money(price)}円 × ${order.mitarashi} = ${money(order.mitarashi*price)}円`;
   document.getElementById('orderQty').textContent=qty;
-  document.getElementById('orderPrice').textContent=money(qty*PRICE);
+  document.getElementById('orderPrice').textContent=money(qty*price);
 
   ['qShoyu','qMitarashi','shoyuCalc','mitarashiCalc','orderQtyWrap','orderPriceWrap']
     .forEach(id=>document.getElementById(id).classList.toggle('confirmed',confirmed));
@@ -434,14 +544,17 @@ function renderOrder(){
     .forEach(id=>document.getElementById(id).disabled=confirmed);
 
   document.getElementById('confirmBtn').disabled = confirmed || qty===0;
-  document.getElementById('registerBtn').disabled = !confirmed || qty===0 || registering;
+  const registerBtn=document.getElementById('registerBtn');
+  registerBtn.disabled = !confirmed || qty===0 || registering;
+  registerBtn.classList.toggle('ready', confirmed && qty>0 && !registering);
 }
 
 function confirmOrder(){
   if(confirmed || order.shoyu+order.mitarashi===0) return;
+  confirmedPrice=currentPrice;
   confirmed=true;
   renderOrder();
-  toast('注文内容を確定しました');
+  toast(`注文内容を確定しました（${money(confirmedPrice)}円/本）`);
 }
 
 async function registerSale(){
@@ -451,6 +564,7 @@ async function registerSale(){
   renderOrder();
   try{
     const now=new Date();
+    const unitPrice=confirmedPrice != null ? confirmedPrice : currentPrice;
     const tx={
       id:newTxId(now),
       timestamp:isoLocal(now),
@@ -458,14 +572,15 @@ async function registerSale(){
       shoyu:Number(order.shoyu),
       mitarashi:Number(order.mitarashi),
       totalQty:qty,
-      totalPrice:qty*PRICE,
+      unitPrice:unitPrice,
+      totalPrice:qty*unitPrice,
       status:'active',
       cancelledAt:''
     };
     await storeTx(tx);
     resetOrder();
     await refresh();
-    toast(`登録しました：${qty}本 / ¥${money(qty*PRICE)}`);
+    toast(`登録しました：${qty}本 / ¥${money(qty*unitPrice)}`);
   }catch(e){
     alert('販売登録に失敗しました。\n'+e.message);
   }finally{
@@ -560,7 +675,8 @@ async function refresh(){
   document.getElementById('totalShoyu').textContent=shoyu;
   document.getElementById('totalMitarashi').textContent=mita;
   document.getElementById('totalQty').textContent=qty;
-  document.getElementById('totalSales').textContent=money(qty*PRICE);
+  const sales=active.reduce((s,x)=>s+Number(x.totalPrice||0),0);
+  document.getElementById('totalSales').textContent=money(sales);
 
   // Recent pane: active transactions only, so cancelled transaction disappears from the sales screen.
   const recent=[...active].reverse().slice(0,20);
@@ -588,9 +704,10 @@ async function refresh(){
   const hourly={};
   active.forEach(x=>{
     const h=Number(x.timestamp.slice(11,13));
-    if(!hourly[h]) hourly[h]={shoyu:0,mitarashi:0};
+    if(!hourly[h]) hourly[h]={shoyu:0,mitarashi:0,sales:0};
     hourly[h].shoyu += Number(x.shoyu||0);
     hourly[h].mitarashi += Number(x.mitarashi||0);
+    hourly[h].sales += Number(x.totalPrice||0);
   });
   const body=document.getElementById('hourlyBody');
   const foot=document.getElementById('hourlyFoot');
@@ -602,10 +719,10 @@ async function refresh(){
     hours.forEach(h=>{
       const a=hourly[h], q=a.shoyu+a.mitarashi;
       const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${pad(h)}:00–${pad((h+1)%24)}:00</td><td>${a.shoyu}本</td><td>${a.mitarashi}本</td><td>${q}本</td><td>¥${money(q*PRICE)}</td>`;
+      tr.innerHTML=`<td>${pad(h)}:00–${pad((h+1)%24)}:00</td><td>${a.shoyu}本</td><td>${a.mitarashi}本</td><td>${q}本</td><td>¥${money(a.sales)}</td>`;
       body.appendChild(tr);
     });
-    foot.innerHTML=`<tr><td>合計</td><td>${shoyu}本</td><td>${mita}本</td><td>${qty}本</td><td>¥${money(qty*PRICE)}</td></tr>`;
+    foot.innerHTML=`<tr><td>合計</td><td>${shoyu}本</td><td>${mita}本</td><td>${qty}本</td><td>¥${money(sales)}</td></tr>`;
   }
 
   // Full transaction history includes cancelled for audit trail.
@@ -631,13 +748,55 @@ async function refresh(){
   }
 }
 
-async function exportCSV(){
+
+async function applyPrice(){
+  const input=document.getElementById('priceInput');
+  const value=Number(input.value);
+  if(!Number.isInteger(value) || value<1 || value>100000){
+    alert('単価は1～100,000円の整数で入力してください。');
+    input.focus();
+    return;
+  }
+  currentPrice=value;
+  await setSetting('unitPrice',currentPrice);
+  document.getElementById('currentPriceSetting').textContent=money(currentPrice);
+  input.value=currentPrice;
+  renderOrder();
+  toast(`単価を${money(currentPrice)}円に変更しました`);
+}
+
+async function askDeleteAll(){
+  const txs=await allTxs();
+  if(!txs.length){
+    toast('削除する販売記録がありません');
+    return;
+  }
+  openModal({
+    title:'本当にすべての記録を削除しますか？',
+    message:'この操作では、登録済み・取消済みを含むすべての取引記録を削除します。削除の直前に現在の全データをCSVとして自動出力します。',
+    orderText:`対象：${txs.length}件\n単価設定は保持されます。`,
+    action:async()=>{
+      try{
+        await exportCSV(true);
+        await new Promise(resolve=>setTimeout(resolve,250));
+        await clearTxs();
+        resetOrder();
+        await refresh();
+        toast('CSVを出力し、すべての取引記録を削除しました');
+      }catch(e){
+        alert('全記録のリセットに失敗しました。\n'+e.message);
+      }
+    }
+  });
+}
+
+async function exportCSV(silent=false){
   const txs=await allTxs();
   const headers=['record_type','timestamp','transaction_id','shoyu_qty','mitarashi_qty','total_qty','unit_price','total_price','status','cancelled_at'];
   const lines=[headers.join(',')];
   txs.forEach(x=>{
     lines.push([
-      'SALE',x.timestamp,x.id,x.shoyu,x.mitarashi,x.totalQty,PRICE,x.totalPrice,
+      'SALE',x.timestamp,x.id,x.shoyu,x.mitarashi,x.totalQty,txUnitPrice(x),x.totalPrice,
       activeStatus(x)?'active':'cancelled',x.cancelledAt||''
     ].join(','));
   });
@@ -649,7 +808,8 @@ async function exportCSV(){
   const a=document.createElement('a');
   a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
-  toast(`CSVを出力しました：${filename}`);
+  if(!silent) toast(`CSVを出力しました：${filename}`);
+  return filename;
 }
 function parseCSVLine(line){return line.split(',');}
 async function importCSV(event){
@@ -678,7 +838,7 @@ async function importCSV(event){
           const ts=c[1], id=c[2], sh=Number(c[3]), mi=Number(c[4]), tq=Number(c[5]), up=Number(c[6]), tp=Number(c[7]);
           if(!ts || !id || [sh,mi,tq,up,tp].some(Number.isNaN)) throw new Error(`${i+1}行目の形式が不正です`);
           rows.push({
-            id,timestamp:ts,dateKey:ts.slice(0,10),shoyu:sh,mitarashi:mi,totalQty:tq,totalPrice:tp,
+            id,timestamp:ts,dateKey:ts.slice(0,10),shoyu:sh,mitarashi:mi,totalQty:tq,unitPrice:up,totalPrice:tp,
             status:isNew?(c[8]||'active'):'active',
             cancelledAt:isNew?(c[9]||''):''
           });
@@ -704,6 +864,13 @@ function toast(msg){
 window.addEventListener('load',async()=>{
   try{
     await openDB();
+    const savedPrice=Number(await getSetting('unitPrice'));
+    currentPrice=Number.isInteger(savedPrice) && savedPrice>0 ? savedPrice : DEFAULT_PRICE;
+    if(!(Number.isInteger(savedPrice) && savedPrice>0)){
+      await setSetting('unitPrice',currentPrice);
+    }
+    document.getElementById('currentPriceSetting').textContent=money(currentPrice);
+    document.getElementById('priceInput').value=currentPrice;
     renderOrder();
     await refresh();
     if('serviceWorker' in navigator){
