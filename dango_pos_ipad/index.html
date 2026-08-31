@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#123a66" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="団子販売" />
+  <meta name="apple-mobile-web-app-title" content="だんご🍡" />
   <link rel="apple-touch-icon" href="icon-180.png" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <title>学園祭 団子販売カウンター</title>
+  <title>だんご🍡</title>
   <style>
     :root{
       --navy:#123a66;
@@ -19,201 +19,338 @@
       --line:#d9e0e7;
       --text:#17202a;
       --muted:#6b7785;
-      --shoyu:#9b5c2b;
-      --mitarashi:#d98b11;
+      --shoyu:#985b2b;
+      --mitarashi:#e58d00;
       --green:#148441;
       --green2:#0f6b34;
-      --red:#b3261e;
-      --shadow:0 8px 24px rgba(20,40,60,.10);
+      --red:#d83b2d;
+      --blue:#075ee8;
+      --blue2:#004ec8;
+      --shadow:0 8px 24px rgba(20,40,60,.09);
+      --radius:18px;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{margin:0;padding:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;color:var(--text)}
-    body{min-height:100vh}
+    body{min-height:100vh;min-height:100dvh}
     button,input{font:inherit}
-    .app{max-width:1180px;margin:0 auto;min-height:100vh;background:#fff}
+    button{touch-action:manipulation}
+    .app{max-width:1280px;margin:0 auto;min-height:100vh;min-height:100dvh;background:var(--bg)}
     header{
       background:linear-gradient(180deg,var(--navy),var(--navy2));
-      color:white;padding:16px 20px 14px;text-align:center;position:sticky;top:0;z-index:10
+      color:#fff;padding:10px 20px;text-align:center;position:sticky;top:0;z-index:20
     }
-    header h1{font-size:30px;line-height:1.15;margin:0;font-weight:800;letter-spacing:.03em}
-    header .sub{font-size:16px;margin-top:4px;opacity:.92}
-    .main{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;padding:16px;background:var(--bg)}
-    .left,.right{min-width:0}
-    .order-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .sku-card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
-    .sku-head{color:white;font-size:34px;font-weight:800;text-align:center;padding:14px 12px}
-    .sku-head.shoyu{background:linear-gradient(180deg,#a76737,#855023)}
-    .sku-head.mitarashi{background:linear-gradient(180deg,#efa729,#ca7903)}
-    .sku-body{padding:16px}
-    .unit{text-align:center;font-size:20px;font-weight:700;margin-bottom:12px}
-    .stepper{display:grid;grid-template-columns:88px 1fr 88px;align-items:center;gap:10px}
+    header h1{font-size:21px;line-height:1.15;margin:0;font-weight:800;letter-spacing:.02em}
+    .tabs{
+      display:flex;background:#fff;border-bottom:1px solid var(--line);
+      position:sticky;top:43px;z-index:19
+    }
+    .tab{
+      flex:1;border:0;background:#fff;color:#68788b;height:48px;font-weight:800;font-size:17px;
+      border-bottom:3px solid transparent;cursor:pointer
+    }
+    .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+
+    /* Sales input tab */
+    .sales-shell{padding:14px;min-height:calc(100dvh - 91px)}
+    .sales-grid{
+      display:grid;
+      grid-template-columns:280px minmax(280px,1fr) minmax(320px,1.08fr);
+      grid-template-rows:minmax(0,1fr) minmax(0,1fr) auto;
+      gap:14px;
+      height:calc(100dvh - 119px);
+      min-height:0;
+      overflow:hidden;
+    }
+    .pane{
+      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+      box-shadow:var(--shadow);overflow:hidden;min-width:0;min-height:0;
+    }
+    .recent-pane{
+      grid-column:1;
+      grid-row:1 / 4;
+      display:flex;
+      flex-direction:column;
+      height:100%;
+      min-height:0;
+      overflow:hidden;
+    }
+    .recent-head{padding:18px 18px 10px;font-size:22px;font-weight:900}
+    .recent-help{padding:0 18px 10px;color:var(--muted);font-size:12px;line-height:1.4}
+    .recent-list{
+      flex:1 1 auto;
+      min-height:0;
+      overflow-y:auto;
+      overflow-x:hidden;
+      padding:0 12px 14px;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-gutter:stable;
+    }
+    .recent-item{
+      width:100%;border:0;border-top:1px solid var(--line);background:#fff;text-align:left;
+      padding:13px 8px;cursor:pointer;border-radius:0;color:var(--text)
+    }
+    .recent-item:first-child{border-top:0}
+    .recent-item:active{background:#f2f6fb}
+    .recent-top{display:flex;justify-content:space-between;color:#718094;font-size:14px;margin-bottom:5px}
+    .recent-main{font-size:16px;font-weight:800;line-height:1.4}
+    .recent-total{font-size:18px;font-weight:900;margin-top:3px}
+    .empty{padding:24px 8px;text-align:center;color:var(--muted)}
+
+    .summary-card{display:flex;align-items:center;justify-content:center;text-align:center;padding:18px}
+    .summary-card.total{grid-column:2;grid-row:1}
+    .summary-card.payment{grid-column:2;grid-row:2}
+    .summary-label{font-size:27px;font-weight:900;margin-bottom:18px}
+    .summary-value{font-size:72px;line-height:1;font-weight:900;font-variant-numeric:tabular-nums;color:var(--text)}
+    .summary-value.money{font-size:68px}
+    .summary-unit{font-size:28px;margin-left:4px}
+
+    .sku-card{display:flex;flex-direction:column}
+    .sku-card.shoyu{grid-column:3;grid-row:1}
+    .sku-card.mitarashi{grid-column:3;grid-row:2}
+    .sku-head{color:#fff;font-size:30px;font-weight:900;text-align:center;padding:15px 12px}
+    .sku-head.shoyu{background:linear-gradient(180deg,#a86736,#865023)}
+    .sku-head.mitarashi{background:linear-gradient(180deg,#f2a31c,#d57d00)}
+    .sku-body{padding:14px 18px 12px;display:flex;flex:1;flex-direction:column;justify-content:center}
+    .unit{text-align:center;font-size:19px;font-weight:800;margin-bottom:8px}
+    .stepper{display:grid;grid-template-columns:82px 1fr 82px;align-items:center;gap:10px}
     .stepper button{
-      height:88px;border-radius:18px;border:2px solid #c9d1da;background:#fff;font-size:54px;line-height:1;font-weight:500;
-      touch-action:manipulation;
+      height:78px;border-radius:16px;border:2px solid #c8d1dc;background:#fff;font-size:50px;
+      cursor:pointer;color:#111
     }
-    .stepper button:active{transform:scale(.98);background:#f3f6f9}
-    .qty{font-size:68px;line-height:1;text-align:center;font-weight:800;font-variant-numeric:tabular-nums}
-    .line-total{text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:22px;font-weight:800}
-    .summary{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:0;box-shadow:var(--shadow)}
-    .sum-cell{text-align:center;padding:6px 14px}
-    .sum-cell + .sum-cell{border-left:1px solid var(--line)}
-    .sum-label{font-size:20px;font-weight:700}
-    .sum-value{display:inline-block;font-size:54px;font-weight:900;margin-left:10px;font-variant-numeric:tabular-nums}
-    .sum-unit{font-size:22px;font-weight:700}
-    .actions{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:16px}
-    .primary,.secondary,.danger,.smallbtn{
-      border:0;border-radius:16px;font-weight:800;touch-action:manipulation;cursor:pointer;
+    .stepper button:active:not(:disabled){transform:scale(.98);background:#f1f4f8}
+    .stepper button:disabled{background:#eee;color:#aaa;border-color:#ddd;cursor:default}
+    .qty{font-size:64px;line-height:1;text-align:center;font-weight:900;font-variant-numeric:tabular-nums;color:var(--text)}
+    .line-total{text-align:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:21px;font-weight:900;color:var(--text)}
+
+    .order-number.confirmed{color:var(--blue)!important}
+
+    .actions{
+      grid-column:2 / 4;grid-row:3;
+      display:grid;grid-template-columns:1fr 1fr 1.15fr;gap:12px;align-items:stretch
     }
-    .primary{height:82px;background:linear-gradient(180deg,var(--green),var(--green2));color:white;font-size:32px;box-shadow:var(--shadow)}
-    .primary:disabled{opacity:.4}
-    .secondary{height:82px;background:#fff;color:var(--red);border:2px solid #df6b65;font-size:23px}
-    .right-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
-    .right-card h2{font-size:20px;margin:0 0 10px}
-    .recent{display:flex;flex-direction:column;gap:0}
-    .recent-row{padding:10px 0;border-top:1px solid var(--line)}
-    .recent-row:first-child{border-top:0}
-    .recent-top{display:flex;justify-content:space-between;font-size:14px;color:var(--muted)}
-    .recent-main{font-size:15px;font-weight:700;margin-top:3px}
-    .recent-total{font-size:17px;font-weight:800;margin-top:2px}
-    .empty{color:var(--muted);padding:16px 4px;text-align:center}
-    .stats{margin:16px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
-    .stats-top{display:grid;grid-template-columns:auto 1fr 1fr 1fr 1.2fr;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);font-weight:800}
-    .badge{background:#e8f0f8;color:var(--navy);border:1px solid #c9d7e6;border-radius:8px;padding:7px 10px;text-align:center}
-    .stat{text-align:center;font-size:18px}.stat strong{font-size:24px;margin-left:4px;font-variant-numeric:tabular-nums}
-    .table-wrap{overflow:auto}
-    table{width:100%;border-collapse:collapse;min-width:600px}
-    th{background:var(--navy);color:white;padding:10px;text-align:center}
-    td{padding:10px;border-top:1px solid var(--line);text-align:center;font-variant-numeric:tabular-nums}
-    .footer-actions{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px 16px;flex-wrap:wrap}
-    .smallbtn{padding:12px 16px;background:#fff;border:1px solid #bfc9d4;color:var(--navy);font-size:16px}
-    .smallbtn.export{border-color:#60a47a;color:#176b37}
-    .smallbtn.undo{border-color:#d59b96;color:#9b2d25}
+    .action{
+      min-height:72px;border-radius:16px;font-size:21px;font-weight:900;cursor:pointer;
+      border:2px solid transparent;padding:10px 12px
+    }
+    .action:disabled{opacity:.38;cursor:default}
+    .reset-btn{background:#fff;color:var(--red);border-color:#ef766a}
+    .register-btn{background:#fff;color:#177837;border-color:#6ab47c}
+    .confirm-btn{background:linear-gradient(180deg,var(--blue),var(--blue2));color:#fff;border-color:var(--blue)}
+    .action small{display:block;font-size:11px;margin-top:3px;font-weight:700;opacity:.82}
+
+    /* History tab */
+    .history-shell{padding:14px}
+    .today-summary{
+      display:grid;grid-template-columns:auto repeat(4,1fr);align-items:center;background:#fff;
+      border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 18px;
+    }
+    .today-label{font-weight:900;color:var(--navy);font-size:18px;padding-right:18px}
+    .stat{text-align:center;border-left:1px solid var(--line);padding:6px 10px;font-weight:800}
+    .stat-label{font-size:14px;color:#405266}
+    .stat-value{font-size:30px;margin-top:5px;font-variant-numeric:tabular-nums}
+    .history-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(270px,.75fr);gap:14px;margin-top:14px}
+    .history-pane{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .history-title{font-size:20px;font-weight:900;padding:16px}
+    .table-wrap{overflow:auto;padding:0 14px 14px}
+    table{width:100%;border-collapse:collapse;min-width:580px}
+    th{background:var(--navy);color:#fff;padding:11px 8px;text-align:center}
+    td{padding:11px 8px;border:1px solid var(--line);text-align:center;font-variant-numeric:tabular-nums}
+    tfoot td{font-weight:900}
+    .tx-list{padding:0 14px 14px;max-height:500px;overflow:auto}
+    .tx-row{padding:12px 4px;border-top:1px solid var(--line)}
+    .tx-row:first-child{border-top:0}
+    .tx-row.cancelled{opacity:.52}
+    .tx-row.cancelled .tx-main,.tx-row.cancelled .tx-total{text-decoration:line-through}
+    .tx-top{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+    .tx-main{font-weight:800;margin-top:4px}
+    .tx-total{font-weight:900;margin-top:2px}
+    .cancel-badge{color:#a62c23;font-weight:900;font-size:12px}
+    .history-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .smallbtn{
+      border-radius:12px;padding:11px 14px;background:#fff;border:1px solid #bac6d2;
+      color:var(--navy);font-weight:800;cursor:pointer
+    }
+    .smallbtn.export{color:#176b37;border-color:#70ad82}
+    input[type=file]{display:none}
+
+    /* Modal / toast */
+    .modal-backdrop{
+      position:fixed;inset:0;background:rgba(9,19,30,.42);display:none;align-items:center;justify-content:center;
+      z-index:100;padding:20px
+    }
+    .modal-backdrop.show{display:flex}
+    .modal{
+      width:min(440px,100%);background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.24);
+      padding:22px
+    }
+    .modal h3{margin:0 0 12px;font-size:23px}
+    .modal p{margin:7px 0;color:#445466;line-height:1.55}
+    .modal-order{background:#f4f7fa;border-radius:12px;padding:12px;margin:14px 0;font-weight:800;line-height:1.6}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+    .modal-btn{border:0;border-radius:12px;padding:12px 16px;font-weight:900;cursor:pointer}
+    .modal-cancel{background:#edf1f5;color:#344454}
+    .modal-danger{background:var(--red);color:#fff}
+
     .toast{
-      position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
-      background:rgba(20,26,32,.94);color:white;padding:14px 20px;border-radius:12px;
-      opacity:0;pointer-events:none;transition:.2s;z-index:50;font-weight:700
+      position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(18px);
+      background:rgba(18,26,34,.95);color:#fff;padding:13px 18px;border-radius:12px;font-weight:800;
+      opacity:0;pointer-events:none;transition:.2s;z-index:110
     }
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    .confirm-flash{animation:flash .35s ease}
-    @keyframes flash{0%{transform:scale(1)}50%{transform:scale(.985)}100%{transform:scale(1)}}
-    .note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
-    input[type=file]{display:none}
+
     @media (max-width:900px){
-      .main{grid-template-columns:1fr}
-      .right{order:2}
-      .stats{margin:0 16px 16px}
+      .sales-grid{grid-template-columns:245px 1fr 1fr}
+      .summary-value{font-size:58px}.summary-value.money{font-size:54px}
+      .qty{font-size:54px}.stepper{grid-template-columns:68px 1fr 68px}.stepper button{height:68px}
     }
-    @media (max-width:680px){
-      header h1{font-size:23px}
-      .order-grid{grid-template-columns:1fr}
-      .sku-head{font-size:28px}
-      .qty{font-size:56px}
-      .stepper{grid-template-columns:76px 1fr 76px}
-      .stepper button{height:76px;font-size:46px}
-      .summary{grid-template-columns:1fr}
-      .sum-cell + .sum-cell{border-left:0;border-top:1px solid var(--line)}
-      .actions{grid-template-columns:1fr}
-      .stats-top{grid-template-columns:1fr 1fr}
-      .stats-top .badge{grid-column:1/-1}
+    @media (max-width:720px){
+      .tabs{top:41px}
+      .sales-grid{display:flex;flex-direction:column;height:auto;min-height:auto;overflow:visible}
+      .recent-pane{min-height:320px;order:4}
+      .summary-card{min-height:220px}
+      .sku-card{min-height:300px}
+      .actions{order:5;grid-template-columns:1fr}
+      .history-grid{grid-template-columns:1fr}
+      .today-summary{grid-template-columns:1fr 1fr}
+      .today-label{grid-column:1/-1;padding:0 0 10px}
+      .stat{border-left:0;border-top:1px solid var(--line)}
     }
   </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <h1>学園祭 模擬店売上記録</h1>
-    <div class="sub">団子販売カウンター ｜ 現金決済のみ</div>
-  </header>
+  <header><h1>だんご🍡</h1></header>
 
-  <section class="main">
-    <div class="left">
-      <div class="order-grid">
-        <article class="sku-card">
+  <nav class="tabs" aria-label="画面切替">
+    <button class="tab active" data-tab="sales" onclick="switchTab('sales')">✎ 販売入力</button>
+    <button class="tab" data-tab="history" onclick="switchTab('history')">▥ 時間帯履歴</button>
+  </nav>
+
+  <section id="tab-sales" class="tab-panel active">
+    <div class="sales-shell">
+      <div class="sales-grid">
+        <aside class="pane recent-pane">
+          <div class="recent-head">最近の記録</div>
+          <div class="recent-help">取引をタップすると取消できます。取消した取引は集計から除外し、履歴には保持します。</div>
+          <div id="recentList" class="recent-list"></div>
+        </aside>
+
+        <section class="pane summary-card total">
+          <div>
+            <div class="summary-label">合計</div>
+            <div id="orderQtyWrap" class="summary-value order-number"><span id="orderQty">0</span><span class="summary-unit">本</span></div>
+          </div>
+        </section>
+
+        <section class="pane summary-card payment">
+          <div>
+            <div class="summary-label">お会計</div>
+            <div id="orderPriceWrap" class="summary-value money order-number">¥<span id="orderPrice">0</span></div>
+          </div>
+        </section>
+
+        <article class="pane sku-card shoyu">
           <div class="sku-head shoyu">しょうゆ</div>
           <div class="sku-body">
             <div class="unit">1本 120円</div>
             <div class="stepper">
-              <button aria-label="しょうゆを1本減らす" onclick="changeQty('shoyu',-1)">−</button>
-              <div class="qty" id="qShoyu">0</div>
-              <button aria-label="しょうゆを1本増やす" onclick="changeQty('shoyu',1)">＋</button>
+              <button id="shoyuMinus" aria-label="しょうゆを1本減らす" onclick="changeQty('shoyu',-1)">−</button>
+              <div id="qShoyu" class="qty order-number">0</div>
+              <button id="shoyuPlus" aria-label="しょうゆを1本増やす" onclick="changeQty('shoyu',1)">＋</button>
             </div>
-            <div class="line-total"><span id="shoyuCalc">120円 × 0 = 0円</span></div>
+            <div id="shoyuCalc" class="line-total order-number">120円 × 0 = 0円</div>
           </div>
         </article>
 
-        <article class="sku-card">
+        <article class="pane sku-card mitarashi">
           <div class="sku-head mitarashi">みたらし</div>
           <div class="sku-body">
             <div class="unit">1本 120円</div>
             <div class="stepper">
-              <button aria-label="みたらしを1本減らす" onclick="changeQty('mitarashi',-1)">−</button>
-              <div class="qty" id="qMitarashi">0</div>
-              <button aria-label="みたらしを1本増やす" onclick="changeQty('mitarashi',1)">＋</button>
+              <button id="mitarashiMinus" aria-label="みたらしを1本減らす" onclick="changeQty('mitarashi',-1)">−</button>
+              <div id="qMitarashi" class="qty order-number">0</div>
+              <button id="mitarashiPlus" aria-label="みたらしを1本増やす" onclick="changeQty('mitarashi',1)">＋</button>
             </div>
-            <div class="line-total"><span id="mitarashiCalc">120円 × 0 = 0円</span></div>
+            <div id="mitarashiCalc" class="line-total order-number">120円 × 0 = 0円</div>
           </div>
         </article>
-      </div>
 
-      <div class="summary" id="summaryBox">
-        <div class="sum-cell">
-          <span class="sum-label">合計</span>
-          <span class="sum-value" id="orderQty">0</span><span class="sum-unit">本</span>
+        <div class="actions">
+          <button class="action reset-btn" onclick="askReset()">注文取消・リセット</button>
+          <button id="registerBtn" class="action register-btn" onclick="registerSale()" disabled>
+            受領済・登録
+            <small>受領後に売上登録</small>
+          </button>
+          <button id="confirmBtn" class="action confirm-btn" onclick="confirmOrder()" disabled>
+            確定
+            <small>注文内容を固定</small>
+          </button>
         </div>
-        <div class="sum-cell">
-          <span class="sum-label">お会計</span>
-          <span class="sum-value">¥<span id="orderPrice">0</span></span>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="primary" id="confirmBtn" onclick="confirmSale()" disabled>✓ 販売確定</button>
-        <button class="secondary" onclick="resetOrder()">注文取消・リセット</button>
       </div>
     </div>
-
-    <aside class="right">
-      <div class="right-card">
-        <h2>最近の記録</h2>
-        <div class="recent" id="recentList"></div>
-        <div class="note">販売確定時の時刻を自動保存します。</div>
-      </div>
-    </aside>
   </section>
 
-  <section class="stats">
-    <div class="stats-top">
-      <div class="badge">本日累計</div>
-      <div class="stat">しょうゆ <strong id="totalShoyu">0</strong>本</div>
-      <div class="stat">みたらし <strong id="totalMitarashi">0</strong>本</div>
-      <div class="stat">合計 <strong id="totalQty">0</strong>本</div>
-      <div class="stat">売上 <strong>¥<span id="totalSales">0</span></strong></div>
-    </div>
+  <section id="tab-history" class="tab-panel">
+    <div class="history-shell">
+      <section class="today-summary">
+        <div class="today-label">本日累計</div>
+        <div class="stat"><div class="stat-label">しょうゆ</div><div class="stat-value"><span id="totalShoyu">0</span>本</div></div>
+        <div class="stat"><div class="stat-label">みたらし</div><div class="stat-value"><span id="totalMitarashi">0</span>本</div></div>
+        <div class="stat"><div class="stat-label">合計</div><div class="stat-value"><span id="totalQty">0</span>本</div></div>
+        <div class="stat"><div class="stat-label">売上</div><div class="stat-value">¥<span id="totalSales">0</span></div></div>
+      </section>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>時間帯</th><th>しょうゆ</th><th>みたらし</th><th>合計</th><th>売上</th></tr>
-        </thead>
-        <tbody id="hourlyBody"></tbody>
-      </table>
-    </div>
+      <div class="history-grid">
+        <section class="history-pane">
+          <div class="history-title">時間帯別履歴</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>時間帯</th><th>しょうゆ</th><th>みたらし</th><th>合計</th><th>売上</th></tr></thead>
+              <tbody id="hourlyBody"></tbody>
+              <tfoot id="hourlyFoot"></tfoot>
+            </table>
+          </div>
+        </section>
 
-    <div class="footer-actions">
-      <button class="smallbtn undo" onclick="undoLast()">直前の取引を取消</button>
-      <button class="smallbtn export" onclick="exportCSV()">CSV出力（スナップショット）</button>
-      <label class="smallbtn" for="csvImport">CSVから復元</label>
-      <input type="file" id="csvImport" accept=".csv,text/csv" onchange="importCSV(event)" />
+        <section class="history-pane">
+          <div class="history-title">取引履歴</div>
+          <div id="transactionList" class="tx-list"></div>
+        </section>
+      </div>
+
+      <div class="history-actions">
+        <button class="smallbtn export" onclick="exportCSV()">CSV出力（スナップショット）</button>
+        <label class="smallbtn" for="csvImport">CSVから復元</label>
+        <input type="file" id="csvImport" accept=".csv,text/csv" onchange="importCSV(event)" />
+      </div>
     </div>
   </section>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+    <p id="modalMessage"></p>
+    <div id="modalOrder" class="modal-order" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal()">キャンセル</button>
+      <button id="modalConfirmBtn" class="modal-btn modal-danger">実行</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <script>
 const PRICE = 120;
 let order = { shoyu:0, mitarashi:0 };
+let confirmed = false;
 let db;
+let modalAction = null;
+let registering = false;
 
 function money(n){ return Number(n).toLocaleString('ja-JP'); }
 function pad(n){ return String(n).padStart(2,'0'); }
@@ -224,6 +361,7 @@ function isoLocal(d=new Date()){
 function newTxId(d=new Date()){
   return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}-${Math.random().toString(36).slice(2,6).toUpperCase()}`;
 }
+function activeStatus(x){ return !x.status || x.status === 'active'; }
 
 function openDB(){
   return new Promise((resolve,reject)=>{
@@ -248,14 +386,6 @@ function storeTx(tx){
     t.onerror=()=>reject(t.error);
   });
 }
-function deleteTx(id){
-  return new Promise((resolve,reject)=>{
-    const t=db.transaction('transactions','readwrite');
-    t.objectStore('transactions').delete(id);
-    t.oncomplete=resolve;
-    t.onerror=()=>reject(t.error);
-  });
-}
 function clearTxs(){
   return new Promise((resolve,reject)=>{
     const t=db.transaction('transactions','readwrite');
@@ -273,118 +403,242 @@ function allTxs(){
   });
 }
 
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id===`tab-${name}`));
+}
+
 function changeQty(sku,delta){
+  if(confirmed) return;
   order[sku]=Math.max(0, order[sku]+delta);
   renderOrder();
 }
 function resetOrder(){
   order={shoyu:0,mitarashi:0};
+  confirmed=false;
   renderOrder();
 }
 function renderOrder(){
+  const qty=order.shoyu+order.mitarashi;
   document.getElementById('qShoyu').textContent=order.shoyu;
   document.getElementById('qMitarashi').textContent=order.mitarashi;
   document.getElementById('shoyuCalc').textContent=`120円 × ${order.shoyu} = ${money(order.shoyu*PRICE)}円`;
   document.getElementById('mitarashiCalc').textContent=`120円 × ${order.mitarashi} = ${money(order.mitarashi*PRICE)}円`;
-  const qty=order.shoyu+order.mitarashi;
   document.getElementById('orderQty').textContent=qty;
   document.getElementById('orderPrice').textContent=money(qty*PRICE);
-  document.getElementById('confirmBtn').disabled = qty===0;
+
+  ['qShoyu','qMitarashi','shoyuCalc','mitarashiCalc','orderQtyWrap','orderPriceWrap']
+    .forEach(id=>document.getElementById(id).classList.toggle('confirmed',confirmed));
+
+  ['shoyuMinus','shoyuPlus','mitarashiMinus','mitarashiPlus']
+    .forEach(id=>document.getElementById(id).disabled=confirmed);
+
+  document.getElementById('confirmBtn').disabled = confirmed || qty===0;
+  document.getElementById('registerBtn').disabled = !confirmed || qty===0 || registering;
 }
 
-async function confirmSale(){
+function confirmOrder(){
+  if(confirmed || order.shoyu+order.mitarashi===0) return;
+  confirmed=true;
+  renderOrder();
+  toast('注文内容を確定しました');
+}
+
+async function registerSale(){
   const qty=order.shoyu+order.mitarashi;
-  if(qty===0) return;
-  const now=new Date();
-  const tx={
-    id:newTxId(now),
-    timestamp:isoLocal(now),
-    dateKey:localDateKey(now),
-    shoyu:Number(order.shoyu),
-    mitarashi:Number(order.mitarashi),
-    totalQty:qty,
-    totalPrice:qty*PRICE
+  if(!confirmed || qty===0 || registering) return;
+  registering=true;
+  renderOrder();
+  try{
+    const now=new Date();
+    const tx={
+      id:newTxId(now),
+      timestamp:isoLocal(now),
+      dateKey:localDateKey(now),
+      shoyu:Number(order.shoyu),
+      mitarashi:Number(order.mitarashi),
+      totalQty:qty,
+      totalPrice:qty*PRICE,
+      status:'active',
+      cancelledAt:''
+    };
+    await storeTx(tx);
+    resetOrder();
+    await refresh();
+    toast(`登録しました：${qty}本 / ¥${money(qty*PRICE)}`);
+  }catch(e){
+    alert('販売登録に失敗しました。\n'+e.message);
+  }finally{
+    registering=false;
+    renderOrder();
+  }
+}
+
+function askReset(){
+  if(order.shoyu+order.mitarashi===0 && !confirmed){
+    toast('現在の注文は空です');
+    return;
+  }
+  openModal({
+    title:'注文をリセットしますか？',
+    message: confirmed
+      ? '確定済みの注文内容を破棄します。売上には登録されません。'
+      : '入力中の注文内容を破棄します。',
+    orderText:currentOrderText(),
+    action:()=>{
+      resetOrder();
+      toast('注文をリセットしました');
+    }
+  });
+}
+
+function currentOrderText(){
+  const qty=order.shoyu+order.mitarashi;
+  return `しょうゆ ${order.shoyu}本 / みたらし ${order.mitarashi}本\n合計 ${qty}本　¥${money(qty*PRICE)}`;
+}
+
+function openModal({title,message,orderText='',action}){
+  modalAction=action;
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalMessage').textContent=message;
+  const box=document.getElementById('modalOrder');
+  if(orderText){
+    box.textContent=orderText;
+    box.style.display='block';
+    box.style.whiteSpace='pre-line';
+  }else{
+    box.style.display='none';
+  }
+  const bd=document.getElementById('modalBackdrop');
+  bd.classList.add('show');
+  bd.setAttribute('aria-hidden','false');
+  document.getElementById('modalConfirmBtn').onclick=async()=>{
+    const fn=modalAction;
+    closeModal();
+    if(fn) await fn();
   };
-  await storeTx(tx);
-  resetOrder();
-  document.getElementById('summaryBox').classList.remove('confirm-flash');
-  void document.getElementById('summaryBox').offsetWidth;
-  document.getElementById('summaryBox').classList.add('confirm-flash');
-  toast(`販売記録：${qty}本 / ¥${money(qty*PRICE)}`);
-  await refresh();
+}
+function closeModal(){
+  document.getElementById('modalBackdrop').classList.remove('show');
+  document.getElementById('modalBackdrop').setAttribute('aria-hidden','true');
+  modalAction=null;
+}
+document.getElementById('modalBackdrop').addEventListener('click',e=>{
+  if(e.target.id==='modalBackdrop') closeModal();
+});
+
+async function requestCancelTransaction(id){
+  const txs=await allTxs();
+  const tx=txs.find(x=>x.id===id);
+  if(!tx || !activeStatus(tx)) return;
+  const parts=[];
+  if(tx.shoyu) parts.push(`しょうゆ ${tx.shoyu}本`);
+  if(tx.mitarashi) parts.push(`みたらし ${tx.mitarashi}本`);
+  openModal({
+    title:'この取引を取り消しますか？',
+    message:'本日累計・時間帯集計から除外します。取引履歴とCSVには「取消済」として残ります。',
+    orderText:`${tx.timestamp.slice(11,16)}\n${parts.join(' / ')}\n${tx.totalQty}本　¥${money(tx.totalPrice)}`,
+    action:async()=>{
+      tx.status='cancelled';
+      tx.cancelledAt=isoLocal(new Date());
+      await storeTx(tx);
+      await refresh();
+      toast('取引を取り消しました');
+    }
+  });
 }
 
 async function refresh(){
   const all=await allTxs();
   const today=localDateKey();
-  const txs=all.filter(x=>x.dateKey===today);
-  const shoyu=txs.reduce((s,x)=>s+Number(x.shoyu||0),0);
-  const mita=txs.reduce((s,x)=>s+Number(x.mitarashi||0),0);
+  const todayAll=all.filter(x=>x.dateKey===today);
+  const active=todayAll.filter(activeStatus);
+
+  const shoyu=active.reduce((s,x)=>s+Number(x.shoyu||0),0);
+  const mita=active.reduce((s,x)=>s+Number(x.mitarashi||0),0);
   const qty=shoyu+mita;
   document.getElementById('totalShoyu').textContent=shoyu;
   document.getElementById('totalMitarashi').textContent=mita;
   document.getElementById('totalQty').textContent=qty;
   document.getElementById('totalSales').textContent=money(qty*PRICE);
 
-  const recent=[...txs].reverse().slice(0,5);
-  const list=document.getElementById('recentList');
-  list.innerHTML='';
-  if(!recent.length){list.innerHTML='<div class="empty">まだ販売記録がありません</div>';}
-  recent.forEach(x=>{
-    const time=x.timestamp.slice(11,16);
-    const parts=[];
-    if(x.shoyu) parts.push(`しょうゆ${x.shoyu}`);
-    if(x.mitarashi) parts.push(`みたらし${x.mitarashi}`);
-    const div=document.createElement('div');
-    div.className='recent-row';
-    div.innerHTML=`<div class="recent-top"><span>${time}</span><span>${x.id.slice(-4)}</span></div>
-      <div class="recent-main">${parts.join(' / ')}</div>
-      <div class="recent-total">${x.totalQty}本　¥${money(x.totalPrice)}</div>`;
-    list.appendChild(div);
-  });
+  // Recent pane: active transactions only, so cancelled transaction disappears from the sales screen.
+  const recent=[...active].reverse().slice(0,20);
+  const recentList=document.getElementById('recentList');
+  recentList.innerHTML='';
+  if(!recent.length){
+    recentList.innerHTML='<div class="empty">まだ販売記録がありません</div>';
+  }else{
+    recent.forEach(x=>{
+      const parts=[];
+      if(x.shoyu) parts.push(`しょうゆ${x.shoyu}`);
+      if(x.mitarashi) parts.push(`みたらし${x.mitarashi}`);
+      const b=document.createElement('button');
+      b.className='recent-item';
+      b.onclick=()=>requestCancelTransaction(x.id);
+      b.innerHTML=`
+        <div class="recent-top"><span>${x.timestamp.slice(11,16)}</span><span>${x.id.slice(-4)}</span></div>
+        <div class="recent-main">${parts.join(' / ')}</div>
+        <div class="recent-total">${x.totalQty}本　¥${money(x.totalPrice)}</div>`;
+      recentList.appendChild(b);
+    });
+  }
 
+  // Hourly active aggregate
   const hourly={};
-  txs.forEach(x=>{
+  active.forEach(x=>{
     const h=Number(x.timestamp.slice(11,13));
     if(!hourly[h]) hourly[h]={shoyu:0,mitarashi:0};
     hourly[h].shoyu += Number(x.shoyu||0);
     hourly[h].mitarashi += Number(x.mitarashi||0);
   });
   const body=document.getElementById('hourlyBody');
-  body.innerHTML='';
+  const foot=document.getElementById('hourlyFoot');
+  body.innerHTML=''; foot.innerHTML='';
   const hours=Object.keys(hourly).map(Number).sort((a,b)=>a-b);
   if(!hours.length){
-    body.innerHTML='<tr><td colspan="5" style="color:#6b7785">販売確定すると時間帯別集計が表示されます</td></tr>';
+    body.innerHTML='<tr><td colspan="5" style="color:#6b7785">受領済・登録すると時間帯別集計が表示されます</td></tr>';
   }else{
     hours.forEach(h=>{
       const a=hourly[h], q=a.shoyu+a.mitarashi;
       const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${pad(h)}:00–${pad((h+1)%24)}:00</td><td>${a.shoyu}</td><td>${a.mitarashi}</td><td>${q}</td><td>¥${money(q*PRICE)}</td>`;
+      tr.innerHTML=`<td>${pad(h)}:00–${pad((h+1)%24)}:00</td><td>${a.shoyu}本</td><td>${a.mitarashi}本</td><td>${q}本</td><td>¥${money(q*PRICE)}</td>`;
       body.appendChild(tr);
+    });
+    foot.innerHTML=`<tr><td>合計</td><td>${shoyu}本</td><td>${mita}本</td><td>${qty}本</td><td>¥${money(qty*PRICE)}</td></tr>`;
+  }
+
+  // Full transaction history includes cancelled for audit trail.
+  const txList=document.getElementById('transactionList');
+  txList.innerHTML='';
+  const rows=[...todayAll].reverse();
+  if(!rows.length){
+    txList.innerHTML='<div class="empty">まだ取引履歴がありません</div>';
+  }else{
+    rows.forEach(x=>{
+      const parts=[];
+      if(x.shoyu) parts.push(`しょうゆ${x.shoyu}`);
+      if(x.mitarashi) parts.push(`みたらし${x.mitarashi}`);
+      const cancelled=!activeStatus(x);
+      const div=document.createElement('div');
+      div.className='tx-row'+(cancelled?' cancelled':'');
+      div.innerHTML=`
+        <div class="tx-top"><span>${x.timestamp.slice(11,16)}</span><span>${cancelled?'<span class="cancel-badge">取消済</span>':x.id.slice(-4)}</span></div>
+        <div class="tx-main">${parts.join(' / ')}</div>
+        <div class="tx-total">${x.totalQty}本　¥${money(x.totalPrice)}</div>`;
+      txList.appendChild(div);
     });
   }
 }
 
-async function undoLast(){
-  const txs=(await allTxs()).filter(x=>x.dateKey===localDateKey());
-  if(!txs.length){toast('取消できる取引がありません');return;}
-  const last=txs[txs.length-1];
-  const parts=[];
-  if(last.shoyu) parts.push(`しょうゆ${last.shoyu}本`);
-  if(last.mitarashi) parts.push(`みたらし${last.mitarashi}本`);
-  if(!confirm(`直前の取引を取消しますか？\n${last.timestamp.slice(11,16)} / ${parts.join('・')} / ¥${money(last.totalPrice)}`)) return;
-  await deleteTx(last.id);
-  toast('直前の取引を取り消しました');
-  await refresh();
-}
-
 async function exportCSV(){
   const txs=await allTxs();
-  const headers=['record_type','timestamp','transaction_id','shoyu_qty','mitarashi_qty','total_qty','unit_price','total_price'];
+  const headers=['record_type','timestamp','transaction_id','shoyu_qty','mitarashi_qty','total_qty','unit_price','total_price','status','cancelled_at'];
   const lines=[headers.join(',')];
   txs.forEach(x=>{
     lines.push([
-      'SALE', x.timestamp, x.id, x.shoyu, x.mitarashi, x.totalQty, PRICE, x.totalPrice
+      'SALE',x.timestamp,x.id,x.shoyu,x.mitarashi,x.totalQty,PRICE,x.totalPrice,
+      activeStatus(x)?'active':'cancelled',x.cancelledAt||''
     ].join(','));
   });
   const csv='\uFEFF'+lines.join('\r\n');
@@ -397,48 +651,57 @@ async function exportCSV(){
   setTimeout(()=>URL.revokeObjectURL(url),1000);
   toast(`CSVを出力しました：${filename}`);
 }
-
-function parseCSVLine(line){
-  // This app exports unquoted numeric/simple fields only.
-  return line.split(',');
-}
+function parseCSVLine(line){return line.split(',');}
 async function importCSV(event){
   const file=event.target.files && event.target.files[0];
   event.target.value='';
   if(!file) return;
-  if(!confirm(`「${file.name}」の内容で現在の販売履歴を置き換えます。\n先に現在データをCSV出力しておくことを推奨します。\n続行しますか？`)) return;
-  try{
-    const text=(await file.text()).replace(/^\uFEFF/,'').trim();
-    const lines=text.split(/\r?\n/).filter(Boolean);
-    if(lines.length<1) throw new Error('CSVが空です');
-    const header=parseCSVLine(lines[0]);
-    const expected=['record_type','timestamp','transaction_id','shoyu_qty','mitarashi_qty','total_qty','unit_price','total_price'];
-    if(expected.some((h,i)=>header[i]!==h)) throw new Error('このアプリのCSV形式ではありません');
-    const rows=[];
-    for(let i=1;i<lines.length;i++){
-      const c=parseCSVLine(lines[i]);
-      if(c[0]!=='SALE') continue;
-      const ts=c[1], id=c[2], sh=Number(c[3]), mi=Number(c[4]), tq=Number(c[5]), up=Number(c[6]), tp=Number(c[7]);
-      if(!ts || !id || [sh,mi,tq,up,tp].some(Number.isNaN)) throw new Error(`${i+1}行目の形式が不正です`);
-      rows.push({id,timestamp:ts,dateKey:ts.slice(0,10),shoyu:sh,mitarashi:mi,totalQty:tq,totalPrice:tp});
+  openModal({
+    title:'CSVから復元しますか？',
+    message:'現在の販売履歴をCSVの内容で置き換えます。先に現在データのCSVを出力することを推奨します。',
+    orderText:file.name,
+    action:async()=>{
+      try{
+        const text=(await file.text()).replace(/^\uFEFF/,'').trim();
+        const lines=text ? text.split(/\r?\n/).filter(Boolean) : [];
+        if(!lines.length) throw new Error('CSVが空です');
+        const header=parseCSVLine(lines[0]);
+        const oldHeader=['record_type','timestamp','transaction_id','shoyu_qty','mitarashi_qty','total_qty','unit_price','total_price'];
+        const newHeader=[...oldHeader,'status','cancelled_at'];
+        const isNew=newHeader.every((h,i)=>header[i]===h);
+        const isOld=oldHeader.every((h,i)=>header[i]===h);
+        if(!isNew && !isOld) throw new Error('このアプリのCSV形式ではありません');
+        const rows=[];
+        for(let i=1;i<lines.length;i++){
+          const c=parseCSVLine(lines[i]);
+          if(c[0]!=='SALE') continue;
+          const ts=c[1], id=c[2], sh=Number(c[3]), mi=Number(c[4]), tq=Number(c[5]), up=Number(c[6]), tp=Number(c[7]);
+          if(!ts || !id || [sh,mi,tq,up,tp].some(Number.isNaN)) throw new Error(`${i+1}行目の形式が不正です`);
+          rows.push({
+            id,timestamp:ts,dateKey:ts.slice(0,10),shoyu:sh,mitarashi:mi,totalQty:tq,totalPrice:tp,
+            status:isNew?(c[8]||'active'):'active',
+            cancelledAt:isNew?(c[9]||''):''
+          });
+        }
+        await clearTxs();
+        for(const r of rows) await storeTx(r);
+        await refresh();
+        toast(`${rows.length}件の取引を復元しました`);
+      }catch(e){
+        alert('CSV復元に失敗しました。\n'+e.message);
+      }
     }
-    await clearTxs();
-    for(const r of rows) await storeTx(r);
-    toast(`${rows.length}件の取引を復元しました`);
-    await refresh();
-  }catch(e){
-    alert('CSV復元に失敗しました。\n'+e.message);
-  }
+  });
 }
 
 function toast(msg){
   const el=document.getElementById('toast');
   el.textContent=msg;el.classList.add('show');
   clearTimeout(window.__toastTimer);
-  window.__toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
+  window.__toastTimer=setTimeout(()=>el.classList.remove('show'),2300);
 }
 
-window.addEventListener('load', async ()=>{
+window.addEventListener('load',async()=>{
   try{
     await openDB();
     renderOrder();
