@@ -6,6 +6,7 @@ let confirmed = false;
 let db;
 let modalAction = null;
 let modalSaveAction = null;
+let modalCloseAction = null;
 let registering = false;
 let soundEnabled = true;
 let dashboardBucketMinutes = 15;
@@ -372,10 +373,12 @@ function openModal({
   note='',
   resolved=false,
   saveAction=null,
-  resolvedAction=null
+  resolvedAction=null,
+  closeAction=null
 }){
   modalAction=action;
   modalSaveAction=saveAction;
+  modalCloseAction=closeAction;
 
   document.getElementById('modalTitle').textContent=title;
   document.getElementById('modalMessage').textContent=message;
@@ -449,9 +452,19 @@ function closeModal(){
   document.getElementById('modalBackdrop').setAttribute('aria-hidden','true');
   modalAction=null;
   modalSaveAction=null;
+  modalCloseAction=null;
 }
-document.getElementById('modalBackdrop').addEventListener('click',e=>{
-  if(e.target.id==='modalBackdrop') closeModal();
+async function handleModalClose(){
+  const fn=modalCloseAction;
+  if(fn){
+    modalCloseAction=null;
+    await fn();
+    return;
+  }
+  closeModal();
+}
+document.getElementById('modalBackdrop').addEventListener('click',async e=>{
+  if(e.target.id==='modalBackdrop') await handleModalClose();
 });
 
 async function requestCancelTransaction(id){
@@ -463,71 +476,84 @@ async function requestCancelTransaction(id){
   if(tx.shoyu) parts.push(`しょうゆ ${tx.shoyu}本`);
   if(tx.mitarashi) parts.push(`みたらし ${tx.mitarashi}本`);
 
-  openModal({
-    title:'取引詳細',
-    message: activeStatus(tx)
-      ? 'メモの追加・更新、対応完了の切替、または取引取消ができます。'
-      : 'この取引は取消済みです。メモの追加・更新、対応完了の切替はできます。',
-    orderText:`${tx.timestamp.slice(0,10)} ${tx.timestamp.slice(11,16)}\nキー ${displayKey(tx) || '----'}\n${parts.join(' / ')}\n${tx.totalQty}本　¥${money(tx.totalPrice)}`,
-    noteMode:true,
-    note:tx.note || '',
-    resolved:Boolean(tx.noteResolved),
+  const openDetail=(draftNote=tx.note || '',draftResolved=Boolean(tx.noteResolved))=>{
+    openModal({
+      title:'取引詳細',
+      message: activeStatus(tx)
+        ? 'メモの追加・更新、対応完了の切替、または取引取消ができます。'
+        : 'この取引は取消済みです。メモの追加・更新、対応完了の切替はできます。',
+      orderText:`${tx.timestamp.slice(0,10)} ${tx.timestamp.slice(11,16)}\nキー ${displayKey(tx) || '----'}\n${parts.join(' / ')}\n${tx.totalQty}本　¥${money(tx.totalPrice)}`,
+      noteMode:true,
+      note:draftNote,
+      resolved:draftResolved,
 
-    saveAction:async(note)=>{
-      const now=isoLocal(new Date());
-      tx.note=String(note || '').trim();
-      tx.noteUpdatedAt=now;
+      saveAction:async(note)=>{
+        const now=isoLocal(new Date());
+        tx.note=String(note || '').trim();
+        tx.noteUpdatedAt=now;
 
-      if(!tx.note){
-        tx.noteResolved=false;
-        tx.noteResolvedAt='';
-        document.getElementById('modalResolvedCheck').checked=false;
-      }
-
-      await storeTx(tx);
-      await refresh();
-      if(document.getElementById('tab-all-data').classList.contains('active')){
-        await renderAllData();
-      }
-      toast('メモを保存しました');
-    },
-
-    resolvedAction:async(resolved)=>{
-      if(resolved && !String(tx.note || '').trim()){
-        document.getElementById('modalResolvedCheck').checked=false;
-        toast('先にメモを保存してください');
-        return;
-      }
-
-      tx.noteResolved=Boolean(resolved);
-      tx.noteResolvedAt=tx.noteResolved ? isoLocal(new Date()) : '';
-      await storeTx(tx);
-      await refresh();
-
-      if(document.getElementById('tab-all-data').classList.contains('active')){
-        await renderAllData();
-      }
-
-      toast(tx.noteResolved ? '対応完了にしました' : '未完了に戻しました');
-    },
-
-    showConfirm:activeStatus(tx),
-    confirmLabel:'取引取消',
-    action:activeStatus(tx) ? async()=>{
-      openModal({
-        title:'この取引を取り消しますか？',
-        message:'本日集計から除外します。全データ表示とCSVには「取消済」として残ります。',
-        orderText:`${tx.timestamp.slice(11,16)}\nキー ${displayKey(tx) || '----'}\n${parts.join(' / ')}\n${tx.totalQty}本　¥${money(tx.totalPrice)}`,
-        action:async()=>{
-          tx.status='cancelled';
-          tx.cancelledAt=isoLocal(new Date());
-          await storeTx(tx);
-          await refresh();
-          toast('取引を取り消しました');
+        if(!tx.note){
+          tx.noteResolved=false;
+          tx.noteResolvedAt='';
+          document.getElementById('modalResolvedCheck').checked=false;
         }
-      });
-    } : null
-  });
+
+        await storeTx(tx);
+        await refresh();
+        if(document.getElementById('tab-all-data').classList.contains('active')){
+          await renderAllData();
+        }
+        toast('メモを保存しました');
+      },
+
+      resolvedAction:async(resolved)=>{
+        if(resolved && !String(tx.note || '').trim()){
+          document.getElementById('modalResolvedCheck').checked=false;
+          toast('先にメモを保存してください');
+          return;
+        }
+
+        tx.noteResolved=Boolean(resolved);
+        tx.noteResolvedAt=tx.noteResolved ? isoLocal(new Date()) : '';
+        await storeTx(tx);
+        await refresh();
+
+        if(document.getElementById('tab-all-data').classList.contains('active')){
+          await renderAllData();
+        }
+
+        toast(tx.noteResolved ? '対応完了にしました' : '未完了に戻しました');
+      },
+
+      showConfirm:activeStatus(tx),
+      confirmLabel:'取引取消',
+      action:activeStatus(tx) ? async()=>{
+        const noteDraft=document.getElementById('modalNoteInput').value;
+        const resolvedDraft=Boolean(document.getElementById('modalResolvedCheck').checked);
+
+        openModal({
+          title:'この取引を取り消しますか？',
+          message:'本日集計から除外します。全データ表示とCSVには「取消済」として残ります。',
+          orderText:`${tx.timestamp.slice(11,16)}\nキー ${displayKey(tx) || '----'}\n${parts.join(' / ')}\n${tx.totalQty}本　¥${money(tx.totalPrice)}`,
+
+          // 「閉じる」は取消操作だけをキャンセルし、取引詳細へ戻る。
+          closeAction:async()=>{
+            openDetail(noteDraft,resolvedDraft);
+          },
+
+          action:async()=>{
+            tx.status='cancelled';
+            tx.cancelledAt=isoLocal(new Date());
+            await storeTx(tx);
+            await refresh();
+            toast('取引を取り消しました');
+          }
+        });
+      } : null
+    });
+  };
+
+  openDetail();
 }
 
 
@@ -935,7 +961,7 @@ async function refresh(){
       const timeSpan=document.createElement('span');
       timeSpan.textContent=x.timestamp.slice(11,16);
       const keySpan=document.createElement('span');
-      keySpan.textContent=x.id.slice(-4);
+      keySpan.textContent=displayKey(x) || '----';
       top.appendChild(timeSpan);
       top.appendChild(keySpan);
 
