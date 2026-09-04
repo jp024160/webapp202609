@@ -121,6 +121,7 @@ function allTxs(){
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id===`tab-${name}`));
+  if(name==='records-large') renderRecordsLarge();
   if(name==='dashboard') renderDashboard();
   if(name==='all-data') renderAllData();
 }
@@ -556,6 +557,75 @@ async function requestCancelTransaction(id){
   openDetail();
 }
 
+
+
+function formatShortTimestamp(timestamp){
+  const m=String(timestamp || '').match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if(!m) return String(timestamp || '').replace('T',' ').slice(5,16);
+  return `${m[2]}/${m[3]} ${m[4]}:${m[5]}`;
+}
+
+async function renderRecordsLarge(){
+  if(!db) return;
+
+  const body=document.getElementById('recordsLargeBody');
+  if(!body) return;
+
+  const all=await allTxs();
+  const rows=all
+    .filter(activeStatus)
+    .sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp)));
+
+  body.innerHTML='';
+
+  if(!rows.length){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');
+    td.colSpan=5;
+    td.className='records-large-empty';
+    td.textContent='まだ販売記録がありません';
+    tr.appendChild(td);
+    body.appendChild(tr);
+    return;
+  }
+
+  rows.forEach(tx=>{
+    const tr=document.createElement('tr');
+
+    const dateTd=document.createElement('td');
+    dateTd.className='records-large-date';
+    dateTd.textContent=formatShortTimestamp(tx.timestamp);
+    tr.appendChild(dateTd);
+
+    const keyTd=document.createElement('td');
+    const keyBtn=document.createElement('button');
+    keyBtn.type='button';
+    keyBtn.className='records-large-key-btn';
+    keyBtn.textContent=displayKey(tx) || '----';
+    keyBtn.setAttribute('aria-label',`キー ${displayKey(tx) || '----'} の取引詳細・メモを表示`);
+    keyBtn.title='取引詳細・メモを表示';
+    keyBtn.onclick=()=>requestCancelTransaction(tx.id);
+    keyTd.appendChild(keyBtn);
+    tr.appendChild(keyTd);
+
+    const shoyuTd=document.createElement('td');
+    shoyuTd.className='records-large-qty shoyu';
+    shoyuTd.textContent=Number(tx.shoyu || 0);
+    tr.appendChild(shoyuTd);
+
+    const mitarashiTd=document.createElement('td');
+    mitarashiTd.className='records-large-qty mitarashi';
+    mitarashiTd.textContent=Number(tx.mitarashi || 0);
+    tr.appendChild(mitarashiTd);
+
+    const totalTd=document.createElement('td');
+    totalTd.className='records-large-qty total';
+    totalTd.textContent=Number(tx.totalQty || 0);
+    tr.appendChild(totalTd);
+
+    body.appendChild(tr);
+  });
+}
 
 function txDateObject(tx){
   const d=new Date(tx.timestamp);
@@ -1038,6 +1108,9 @@ async function refresh(){
     });
   }
 
+  if(document.getElementById('tab-records-large').classList.contains('active')){
+    renderRecordsLarge();
+  }
   if(document.getElementById('tab-dashboard').classList.contains('active')){
     renderDashboard();
   }
