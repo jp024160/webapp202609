@@ -1,4 +1,4 @@
-const CACHE='dango-pos-v6-2-20260904';
+const CACHE='dango-pos-v6-3-20260905';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-180.png','./icon-512.png','./cash_register.mp3'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));

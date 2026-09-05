@@ -22,6 +22,31 @@ function newTxId(d=new Date()){
 }
 function activeStatus(x){ return !x.status || x.status === 'active'; }
 
+function handedOverStatus(tx){
+  return Boolean(tx && tx.handedOver);
+}
+
+async function setHandedOver(id,value,control=null){
+  if(control) control.disabled=true;
+  try{
+    const txs=await allTxs();
+    const tx=txs.find(x=>x.id===id);
+    if(!tx) throw new Error('取引が見つかりません。');
+    if(!activeStatus(tx)) throw new Error('取消済み取引は変更できません。');
+
+    tx.handedOver=Boolean(value);
+    await storeTx(tx);
+    await refresh();
+    toast(tx.handedOver ? `キー ${displayKey(tx) || '----'}：受け渡し済み` : `キー ${displayKey(tx) || '----'}：未受け渡しに戻しました`);
+  }catch(e){
+    if(control) control.checked=!Boolean(value);
+    alert('受け渡し状態を更新できませんでした。\n'+e.message);
+  }finally{
+    if(control) control.disabled=false;
+  }
+}
+
+
 function normalizeDisplayKey(value){
   const s=String(value ?? '').trim();
   if(!/^\d{1,4}$/.test(s)) return '';
@@ -323,7 +348,8 @@ async function registerSale(){
       note:'',
       noteUpdatedAt:'',
       noteResolved:false,
-      noteResolvedAt:''
+      noteResolvedAt:'',
+      handedOver:false
     };
     await storeTx(tx);
     playCashRegisterSound();
@@ -581,7 +607,7 @@ async function renderRecordsLarge(){
   if(!rows.length){
     const tr=document.createElement('tr');
     const td=document.createElement('td');
-    td.colSpan=5;
+    td.colSpan=6;
     td.className='records-large-empty';
     td.textContent='まだ販売記録がありません';
     tr.appendChild(td);
@@ -591,6 +617,8 @@ async function renderRecordsLarge(){
 
   rows.forEach(tx=>{
     const tr=document.createElement('tr');
+    const isHanded=handedOverStatus(tx);
+    if(isHanded) tr.classList.add('handed-over');
 
     const dateTd=document.createElement('td');
     dateTd.className='records-large-date';
@@ -622,6 +650,19 @@ async function renderRecordsLarge(){
     totalTd.className='records-large-qty total';
     totalTd.textContent=Number(tx.totalQty || 0);
     tr.appendChild(totalTd);
+
+    const handedTd=document.createElement('td');
+    handedTd.className='records-large-handed-cell';
+    const handedCheck=document.createElement('input');
+    handedCheck.type='checkbox';
+    handedCheck.className='records-large-handed-check';
+    handedCheck.checked=isHanded;
+    handedCheck.setAttribute('aria-label',`キー ${displayKey(tx) || '----'} を受け渡し済みにする`);
+    handedCheck.onchange=async e=>{
+      await setHandedOver(tx.id,e.target.checked,e.target);
+    };
+    handedTd.appendChild(handedCheck);
+    tr.appendChild(handedTd);
 
     body.appendChild(tr);
   });
@@ -1010,49 +1051,61 @@ async function refresh(){
   const sales=active.reduce((s,x)=>s+Number(x.totalPrice||0),0);
   document.getElementById('totalSales').textContent=money(sales);
 
-  // Recent pane: active transactions only, so cancelled transaction disappears from the sales screen.
-  const recent=[...active].reverse().slice(0,20);
+  // Recent pane: active transactions only, newest first.
+  const recent=[...active].reverse().slice(0,30);
   const recentList=document.getElementById('recentList');
   recentList.innerHTML='';
   if(!recent.length){
     recentList.innerHTML='<div class="empty">まだ販売記録がありません</div>';
   }else{
     recent.forEach(x=>{
-      const parts=[];
-      if(x.shoyu) parts.push(`しょうゆ${x.shoyu}`);
-      if(x.mitarashi) parts.push(`みたらし${x.mitarashi}`);
-      const b=document.createElement('button');
+      const row=document.createElement('div');
       const hasOpenNote=Boolean((x.note||'').trim()) && !Boolean(x.noteResolved);
-      b.className='recent-item'+(hasOpenNote?' needs-attention':'');
-      b.onclick=()=>requestCancelTransaction(x.id);
+      const isHanded=handedOverStatus(x);
 
-      const top=document.createElement('div');
-      top.className='recent-top';
-      const timeSpan=document.createElement('span');
-      timeSpan.textContent=x.timestamp.slice(11,16);
-      const keySpan=document.createElement('span');
-      keySpan.textContent=displayKey(x) || '----';
-      top.appendChild(timeSpan);
-      top.appendChild(keySpan);
+      row.className='recent-item recent-compact-item'
+        +(hasOpenNote && !isHanded ? ' needs-attention' : '')
+        +(isHanded ? ' handed-over' : '');
+      row.tabIndex=0;
+      row.setAttribute('role','button');
+      row.setAttribute('aria-label',`キー ${displayKey(x) || '----'} の取引詳細を表示`);
+      row.onclick=()=>requestCancelTransaction(x.id);
+      row.onkeydown=e=>{
+        if(e.key==='Enter' || e.key===' '){
+          e.preventDefault();
+          requestCancelTransaction(x.id);
+        }
+      };
 
-      const main=document.createElement('div');
-      main.className='recent-main';
-      main.textContent=parts.join(' / ');
-      if(hasOpenNote){
-        const badge=document.createElement('span');
-        badge.className='recent-note-badge';
-        badge.textContent='📝 要対応';
-        main.appendChild(badge);
-      }
+      const key=document.createElement('span');
+      key.className='recent-compact-key';
+      key.textContent=displayKey(x) || '----';
 
-      const total=document.createElement('div');
-      total.className='recent-total';
-      total.textContent=`${x.totalQty}本　¥${money(x.totalPrice)}`;
+      const sh=document.createElement('span');
+      sh.className='recent-compact-qty shoyu';
+      sh.textContent=Number(x.shoyu||0);
 
-      b.appendChild(top);
-      b.appendChild(main);
-      b.appendChild(total);
-      recentList.appendChild(b);
+      const mi=document.createElement('span');
+      mi.className='recent-compact-qty mitarashi';
+      mi.textContent=Number(x.mitarashi||0);
+
+      const check=document.createElement('input');
+      check.type='checkbox';
+      check.className='recent-handed-check';
+      check.checked=isHanded;
+      check.setAttribute('aria-label',`キー ${displayKey(x) || '----'} を受け渡し済みにする`);
+      check.onclick=e=>e.stopPropagation();
+      check.onkeydown=e=>e.stopPropagation();
+      check.onchange=async e=>{
+        e.stopPropagation();
+        await setHandedOver(x.id,e.target.checked,e.target);
+      };
+
+      row.appendChild(key);
+      row.appendChild(sh);
+      row.appendChild(mi);
+      row.appendChild(check);
+      recentList.appendChild(row);
     });
   }
 
@@ -1184,7 +1237,7 @@ async function renderAllData(){
   body.innerHTML='';
 
   if(!filtered.length){
-    body.innerHTML='<tr><td colspan="12" style="padding:28px;color:#6b7785">該当する取引がありません</td></tr>';
+    body.innerHTML='<tr><td colspan="13" style="padding:28px;color:#6b7785">該当する取引がありません</td></tr>';
     return;
   }
 
@@ -1192,7 +1245,10 @@ async function renderAllData(){
     const tr=document.createElement('tr');
     const hasNote=Boolean((tx.note||'').trim());
     const isResolved=Boolean(tx.noteResolved);
+    const isHanded=handedOverStatus(tx);
+
     if(!activeStatus(tx)) tr.classList.add('cancelled');
+    else if(isHanded) tr.classList.add('handed-over');
     else if(hasNote && !isResolved) tr.classList.add('attention');
     else if(hasNote && isResolved) tr.classList.add('resolved-note');
 
@@ -1204,16 +1260,39 @@ async function renderAllData(){
     if(hasNote && !isResolved) memoStatus='<span class="status-pill status-attention">要対応</span>';
     if(hasNote && isResolved) memoStatus='<span class="status-pill status-resolved">対応完了</span>';
 
-    const cells=[
+    const firstCells=[
       tx.timestamp.replace('T',' '),
       displayKey(tx) || '----',
       `${Number(tx.shoyu||0)}本`,
       `${Number(tx.mitarashi||0)}本`,
-      `${Number(tx.totalQty||0)}本`,
+      `${Number(tx.totalQty||0)}本`
+    ];
+    firstCells.forEach(v=>{
+      const td=document.createElement('td');
+      td.textContent=v;
+      tr.appendChild(td);
+    });
+
+    const handedTd=document.createElement('td');
+    handedTd.className='all-data-handed-cell';
+    const handedCheck=document.createElement('input');
+    handedCheck.type='checkbox';
+    handedCheck.className='all-data-handed-check';
+    handedCheck.checked=isHanded;
+    handedCheck.disabled=!activeStatus(tx);
+    handedCheck.onclick=e=>e.stopPropagation();
+    handedCheck.onchange=async e=>{
+      e.stopPropagation();
+      await setHandedOver(tx.id,e.target.checked,e.target);
+    };
+    handedTd.appendChild(handedCheck);
+    tr.appendChild(handedTd);
+
+    const moneyCells=[
       `${money(txUnitPrice(tx))}円`,
       `¥${money(tx.totalPrice||0)}`
     ];
-    cells.forEach(v=>{
+    moneyCells.forEach(v=>{
       const td=document.createElement('td');
       td.textContent=v;
       tr.appendChild(td);
@@ -1306,13 +1385,15 @@ async function exportCSV(silent=false){
   const txs=await allTxs();
   const headers=[
     'record_type','timestamp','transaction_id','display_key','shoyu_qty','mitarashi_qty','total_qty',
-    'unit_price','total_price','status','cancelled_at',
+    'handed_over','unit_price','total_price','status','cancelled_at',
     'note','note_updated_at','note_resolved','note_resolved_at'
   ];
   const lines=[headers.map(csvEscape).join(',')];
   txs.forEach(x=>{
     lines.push([
-      'SALE',x.timestamp,x.id,displayKey(x),x.shoyu,x.mitarashi,x.totalQty,txUnitPrice(x),x.totalPrice,
+      'SALE',x.timestamp,x.id,displayKey(x),x.shoyu,x.mitarashi,x.totalQty,
+      handedOverStatus(x)?'true':'false',
+      txUnitPrice(x),x.totalPrice,
       activeStatus(x)?'active':'cancelled',x.cancelledAt||'',
       x.note||'',x.noteUpdatedAt||'',x.noteResolved?'true':'false',x.noteResolvedAt||''
     ].map(csvEscape).join(','));
@@ -1385,6 +1466,7 @@ async function importCSV(event){
             shoyu:sh,
             mitarashi:mi,
             totalQty:tq,
+            handedOver:String(get(c,'handed_over','false')).toLowerCase()==='true',
             unitPrice:up,
             totalPrice:tp,
             status:get(c,'status','active') || 'active',
